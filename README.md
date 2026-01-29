@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hi there, I'm Raditya Ananda Satria! 👋
 
-## Getting Started
+![Digital Canvas Preview](public/preview-image.jpg)
 
-First, run the development server:
+## 🚀 About Me
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Saya adalah seorang mahasiswa **Sistem Informasi** di **Universitas Bina Sarana Informatika (UBSI)** yang memiliki ketertarikan mendalam pada dunia pengembangan web (*Web Development*) dan *Data Science*.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Portofolio ini, yang saya sebut sebagai **"Digital Canvas"**, adalah representasi visual dari perjalanan belajar, proyek-proyek yang telah saya kerjakan, serta keahlian teknis yang terus saya asah.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+* 🔭 **Current Focus:** Memperdalam *Fullstack Web Development* (React, Next.js) dan sambil mengeksplorasi *Data Science*.
+* 🌱 **Learning:** Saat ini sedang mempelajari ekosistem modern JavaScript/Typescript dan UI/UX Design.
+* 🎓 **Education:** Mahasiswa Sistem Informasi, UBSI.
+* 🏐 **Interests:** Coding, Desain UI/UX, Data Science, Cybersecurity dan Voli.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🛠️ Tech Stack & Skills
 
-To learn more about Next.js, take a look at the following resources:
+Berikut adalah teknologi dan alat yang saya gunakan untuk membangun portofolio ini dan proyek-proyek lainnya:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### **Frontend Development**
+* ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB) **React.js**
+* ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) **TypeScript**
+* ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white) **Tailwind CSS**
+* ![Framer](https://img.shields.io/badge/Framer-black?style=for-the-badge&logo=framer&logoColor=blue) **Framer Motion** (untuk animasi)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### **Backend & Database** (Learning Journey)
+* ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white) **Node.js**
+* ![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white) **MySQL**
 
-## Deploy on Vercel
+### **Design Tools**
+* ![Figma](https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&logo=figma&logoColor=white) **Figma**
+* ![Canva](https://img.shields.io/badge/Canva-%2300C4CC.svg?style=for-the-badge&logo=Canva&logoColor=white) **Canva**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🎨 Tentang Portofolio Ini
+
+Website ini dibangun dengan tujuan untuk menampilkan karya dan kemampuan saya secara interaktif. Fitur-fitur utama meliputi:
+
+* **Responsive Design:** Tampilan yang menyesuaikan dengan sempurna di Desktop, Tablet, dan Mobile.
+* **Bilingual:** Mendukung Bahasa Indonesia dan Bahasa Inggris untuk menjangkau audiens yang lebih luas.
+* **Interactive UI:** Menggunakan animasi halus dan efek *glassmorphism* untuk pengalaman pengguna yang modern.
+* **Profile Showcase:** Bagian khusus yang menceritakan latar belakang, pengalaman organisasi, dan riwayat pendidikan saya.
+
+---
+
+## 📫 Connect with Me
+
+Saya selalu terbuka untuk diskusi, kolaborasi proyek, atau sekadar menyapa!
+
+* 📸 **Instagram:** [@username](https://instagram.com/username) * 💻 **GitHub:** [github.com/username](https://github.com/username) * 📧 **Email:** [email@example.com](mailto:email@example.com) * 📍 **Location:** Jakarta Timur, Indonesia
+
+---
+
+<p align="center">
+  <i>Terima kasih telah berkunjung ke Digital Canvas saya!</i> 🌟
+</p>
