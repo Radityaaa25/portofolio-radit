@@ -17,7 +17,7 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
     ? (profile?.typewriterId || "Pengembang Web, Desainer") 
     : (profile?.typewriterEn || "Web Developer, Designer");
 
-  // FIX: Tambahkan tipe string eksplisit untuk 's'
+  // FIX: Pastikan array string bersih
   const typewriterArray = rawString.split(",").map((s: string) => s.trim());
 
   return (
@@ -29,6 +29,7 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
       <div className="container px-6 relative z-10">
         <div className="text-center max-w-4xl mx-auto">
           
+          {/* Status Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -48,6 +49,7 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
             </div>
           </motion.div>
 
+          {/* Nama Besar */}
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -55,9 +57,12 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
             className="text-5xl md:text-7xl font-bold mb-6 tracking-tight"
           >
             {t("hero.greeting")} <br />
-            <span className="gradient-text">{profile?.name || "Raditya"}</span>
+            <span className="bg-linear-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                {profile?.name || "Raditya"}
+            </span>
           </motion.h1>
 
+          {/* Role & Typewriter */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -65,12 +70,11 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
             className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto flex flex-col md:flex-row justify-center items-center gap-2"
           >
             <span className="whitespace-nowrap">
-                {language === 'id' ? profile?.roleId : profile?.roleEn} |
+                {language === 'id' ? (profile?.roleId || "Mahasiswa") : (profile?.roleEn || "Student")} |
             </span>
             
             <Typewriter 
               texts={typewriterArray} 
-              // FIX: Ganti min-w-[150px] jadi min-w-36 agar sesuai standar Tailwind
               className="text-primary font-semibold min-w-36 text-left"
               typingSpeed={100}
               deletingSpeed={50}
@@ -78,6 +82,7 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
             />
           </motion.div>
 
+          {/* Buttons CTA */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -86,7 +91,7 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
           >
             <a 
               href="#contact"
-              className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium hover:opacity-90 transition-all hover-glow flex items-center gap-2"
+              className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium hover:opacity-90 transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center gap-2"
             >
               {t("hero.cta1")} <ArrowRight className="w-4 h-4" />
             </a>
@@ -102,6 +107,7 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
         </div>
       </div>
 
+      {/* Scroll Indicator */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

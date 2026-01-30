@@ -12,6 +12,15 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "lh3.googleusercontent.com",
+      },
+      // --- TAMBAHAN BARU (Supaya Tools Muncul) ---
+      {
+        protocol: "https",
+        hostname: "cdn.jsdelivr.net", // Wajib buat Icon Devicon (Canva, React, dll)
+      },
+      {
+        protocol: "https",
+        hostname: "upload.wikimedia.org", // Wajib buat Icon CapCut
       }
     ],
   },

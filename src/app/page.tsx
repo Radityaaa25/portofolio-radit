@@ -33,16 +33,19 @@ export default function Home() {
 
   return (
     <main className="bg-background min-h-screen relative selection:bg-primary/30">
+      {/* Intro Animation Jalan Normal */}
       {showIntro && <IntroAnimation onComplete={() => setShowIntro(false)} />}
 
+      {/* Konten Utama Muncul Setelah Intro */}
       {!showIntro && (
         <>
           <FloatingNavbar />
           <ThemeLanguageToggle />
           
+          {/* Kirim Data Profile ke Hero (PENTING) */}
           <HeroSection profile={data?.profile || null} />
           
-          {/* FIX: Kirim data profile ke AboutSection */}
+          {/* Kirim Data Profile ke About */}
           <AboutSection profile={data?.profile || null} />
           
           <ExperienceSection experiences={data?.experiences || []} />

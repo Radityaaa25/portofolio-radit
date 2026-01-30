@@ -5,10 +5,11 @@ import { motion, useMotionTemplate, useMotionValue, useSpring } from "framer-mot
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Code, Palette, Terminal, Layout, Database, Smartphone, Download } from "lucide-react";
 import Image from "next/image";
-import { Profile } from "@prisma/client"; // Import Tipe Data
+import { Profile } from "@prisma/client";
 
-// --- KOMPONEN KARTU FOTO (KODE ASLI ANDA) ---
-const ProfileCard = () => {
+// --- KOMPONEN KARTU FOTO ---
+// FIX: Terima props profile agar foto dan teksnya dinamis
+const ProfileCard = ({ profile, language }: { profile?: Profile | null, language: string }) => {
   const ref = useRef<HTMLDivElement | null>(null);
 
   const x = useMotionValue(0);
@@ -41,6 +42,12 @@ const ProfileCard = () => {
     y.set(0);
   };
 
+  // Logic pilih Nama & Role
+  const displayName = profile?.name || "Raditya A.S.";
+  const displayRole = language === 'id' 
+    ? (profile?.roleId || "Fullstack Developer") 
+    : (profile?.roleEn || "Fullstack Developer");
+
   return (
     <motion.div
       ref={ref}
@@ -61,9 +68,10 @@ const ProfileCard = () => {
         style={{ transform: "translateZ(50px)" }}
         className="relative h-auto w-full rounded-2xl bg-black/80 backdrop-blur-xl border border-white/10 overflow-hidden"
       >
+        {/* FIX: Ambil FOTO dari DATABASE (profile.photoUrl) */}
         <Image
-          src="/foto.jpg"
-          alt="Raditya Ananda Satria"
+          src={profile?.photoUrl || "/foto.jpg"} 
+          alt={displayName}
           width={500} 
           height={600} 
           className="w-full h-auto object-cover opacity-90 group-hover:opacity-100 transition-all duration-500 group-hover:scale-105"
@@ -73,11 +81,13 @@ const ProfileCard = () => {
         <div className="absolute inset-0 bg-linear-to-t from-black/90 via-transparent to-transparent opacity-50 group-hover:opacity-70 transition-opacity duration-500" />
 
         <div className="absolute bottom-4 left-4 text-left">
+          {/* FIX: Ambil NAMA dari DATABASE */}
           <h3 className="text-xl font-bold text-white mb-1 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-            Raditya A.S.
+            {displayName}
           </h3>
+          {/* FIX: Ambil ROLE dari DATABASE */}
           <p className="text-primary font-medium text-sm translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">
-            Fullstack Developer
+            {displayRole}
           </p>
         </div>
       </div>
@@ -87,11 +97,16 @@ const ProfileCard = () => {
 
 // --- ABOUT SECTION UTAMA ---
 interface AboutSectionProps {
-  profile?: Profile | null; // Terima Data Profile
+  profile?: Profile | null;
 }
 
 const AboutSection = ({ profile }: AboutSectionProps) => {
   const { t, language } = useLanguage();
+
+  // Logic pilih teks About Me (Dari DB vs Default)
+  const aboutText = language === 'id' 
+    ? (profile?.aboutId) 
+    : (profile?.aboutEn);
 
   const skillsData = [
     {
@@ -151,7 +166,8 @@ const AboutSection = ({ profile }: AboutSectionProps) => {
             
             {/* Kolom Foto */}
             <div className="md:col-span-4 lg:col-span-4">
-              <ProfileCard />
+              {/* FIX: Kirim data profile ke komponen kartu */}
+              <ProfileCard profile={profile} language={language} />
             </div>
 
             {/* Kolom Story */}
@@ -161,10 +177,17 @@ const AboutSection = ({ profile }: AboutSectionProps) => {
                   <span className="w-8 h-1 bg-primary rounded-full"></span>
                   {t("about.myStory")}
                 </h3>
-                <div className="prose dark:prose-invert text-muted-foreground leading-relaxed text-justify text-lg">
-                  <p>{t("about.story1")}</p>
-                  <p>{t("about.story2")}</p>
-                  <p>{t("about.story3")}</p>
+                <div className="prose dark:prose-invert text-muted-foreground leading-relaxed text-justify text-lg whitespace-pre-line">
+                  {/* FIX: Tampilkan teks dari Database jika ada. Jika tidak, pakai default t() */}
+                  {aboutText ? (
+                    <p>{aboutText}</p>
+                  ) : (
+                    <>
+                        <p>{t("about.story1")}</p>
+                        <p>{t("about.story2")}</p>
+                        <p>{t("about.story3")}</p>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -187,7 +210,7 @@ const AboutSection = ({ profile }: AboutSectionProps) => {
               {/* Download CV Button (SUDAH DINAMIS DARI DB) */}
               {profile?.cvUrl && (
                 <motion.a 
-                  href={profile.cvUrl} // Link dari Database
+                  href={profile.cvUrl} 
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.02 }}

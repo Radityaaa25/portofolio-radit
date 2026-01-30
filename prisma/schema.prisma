@@ -95,3 +95,15 @@ model Admin {
   password  String
   createdAt DateTime @default(now())
 }
+
+// ... model Profile dll yang sudah ada biarin aja ...
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  password  String
+  role      String   @default("ADMIN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

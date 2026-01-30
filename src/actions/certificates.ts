@@ -10,7 +10,6 @@ type ActionResponse = {
   error?: string;
 };
 
-// --- CREATE CERTIFICATE ---
 export async function createCertificate(formData: FormData): Promise<ActionResponse> {
   const session = await auth();
   if (!session) return { error: "Unauthorized" };
@@ -19,15 +18,14 @@ export async function createCertificate(formData: FormData): Promise<ActionRespo
     const title = formData.get("title") as string;
     const issuer = formData.get("issuer") as string;
     
-    // DB minta 'date' (String), bukan 'issuedAt'
-    const date = formData.get("issuedAt") as string; 
+    // Ambil string tanggal dari form
+    const issuedAtString = formData.get("issuedAt") as string; 
     
     const credentialUrl = formData.get("credentialUrl") as string;
     const imageFile = formData.get("image") as File;
 
-    let finalImage = "";
+    let finalImageUrl = "";
 
-    // 1. Upload Gambar
     if (imageFile && imageFile.size > 0) {
       const fileName = `cert-${Date.now()}-${imageFile.name.replaceAll(" ", "-")}`;
       const { error } = await supabase.storage.from("portfolio").upload(fileName, imageFile, { upsert: false });
@@ -35,19 +33,19 @@ export async function createCertificate(formData: FormData): Promise<ActionRespo
       if (error) throw new Error("Gagal upload gambar: " + error.message);
       
       const { data } = supabase.storage.from("portfolio").getPublicUrl(fileName);
-      finalImage = data.publicUrl;
+      finalImageUrl = data.publicUrl;
     } else {
         return { error: "Gambar sertifikat wajib diisi" };
     }
 
-    // 2. Simpan ke Database (Sesuaikan nama kolom DB)
+    // SIMPAN KE DB (Sesuai Error Log Anda: issuedAt & imageUrl)
     await prisma.certificate.create({
       data: {
         title,
         issuer,
-        date,           // FIX: Pakai 'date' (String)
+        issuedAt: new Date(issuedAtString), // Konversi string ke Date Object
         credentialUrl: credentialUrl || "",
-        image: finalImage, // FIX: Pakai 'image'
+        imageUrl: finalImageUrl,            // Nama kolom: imageUrl
       },
     });
 
@@ -63,7 +61,6 @@ export async function createCertificate(formData: FormData): Promise<ActionRespo
   }
 }
 
-// --- DELETE CERTIFICATE ---
 export async function deleteCertificate(id: string): Promise<ActionResponse> {
   const session = await auth();
   if (!session) return { error: "Unauthorized" };

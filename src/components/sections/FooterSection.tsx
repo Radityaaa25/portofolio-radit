@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Github, Linkedin, Instagram, Heart } from "lucide-react";
+import { Github, Linkedin, Instagram } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Typewriter } from "@/components/Typewriter";
 
@@ -25,7 +25,7 @@ const FooterSection = () => {
   ];
 
   return (
-    <footer className="bg-secondary/20 border-t border-border/50 py-12 relative overflow-hidden">
+    <footer className="bg-secondary/20 border-t border-border/50 py-12 m-18 relative overflow-hidden rounded-3xl">
         <div className="absolute inset-0 bg-grid-white/[0.02] -z-10" />
         
       <div className="container px-6">
@@ -71,9 +71,6 @@ const FooterSection = () => {
             {/* Kolom Kanan: Copyright */}
             <div className="text-muted-foreground text-sm flex flex-col items-center md:items-end gap-2">
                 <p>© {currentYear} Raditya. All rights reserved.</p>
-                <p className="flex items-center gap-1.5">
-                    Dibuat dengan <Heart className="w-4 h-4 text-red-500 animate-pulse fill-red-500" /> pakai Next.js
-                </p>
             </div>
 
         </div>

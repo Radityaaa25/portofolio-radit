@@ -1,25 +1,25 @@
-import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { NextResponse } from "next/server";
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
-  const isOnAdmin = req.nextUrl.pathname.startsWith("/admin");
-  const isOnLogin = req.nextUrl.pathname.startsWith("/admin/login");
+  const isOnAdminPanel = req.nextUrl.pathname.startsWith("/admin");
+  const isOnLoginPage = req.nextUrl.pathname.startsWith("/admin/login");
 
-  // 1. Jika di halaman Admin tapi belum Login -> Tendang ke Login
-  if (isOnAdmin && !isOnLogin && !isLoggedIn) {
-    return NextResponse.redirect(new URL("/admin/login", req.url));
+  // 1. Jika User di panel Admin tapi BELUM Login -> Tendang ke Login
+  if (isOnAdminPanel && !isOnLoginPage && !isLoggedIn) {
+    return NextResponse.redirect(new URL("/admin/login", req.nextUrl));
   }
 
-  // 2. Jika sudah Login tapi buka halaman Login -> Arahkan ke Dashboard
-  if (isOnLogin && isLoggedIn) {
-    return NextResponse.redirect(new URL("/admin", req.url));
+  // 2. Jika User SUDAH Login tapi buka halaman Login -> Tendang ke Dashboard
+  if (isOnLoginPage && isLoggedIn) {
+    return NextResponse.redirect(new URL("/admin", req.nextUrl));
   }
 
   return NextResponse.next();
 });
 
-// Konfigurasi rute mana saja yang dicek middleware
+// Tentukan route mana saja yang dijaga Middleware
 export const config = {
   matcher: ["/admin/:path*"],
 };
