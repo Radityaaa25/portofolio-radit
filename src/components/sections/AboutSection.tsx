@@ -1,10 +1,13 @@
+"use client";
+
 import { useRef } from "react";
 import { motion, useMotionTemplate, useMotionValue, useSpring } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Code, Palette, Terminal, Layout, Database, Smartphone, Download } from "lucide-react";
 import Image from "next/image";
+import { Profile } from "@prisma/client"; // Import Tipe Data
 
-// --- KOMPONEN KARTU FOTO ---
+// --- KOMPONEN KARTU FOTO (KODE ASLI ANDA) ---
 const ProfileCard = () => {
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -58,14 +61,13 @@ const ProfileCard = () => {
         style={{ transform: "translateZ(50px)" }}
         className="relative h-auto w-full rounded-2xl bg-black/80 backdrop-blur-xl border border-white/10 overflow-hidden"
       >
-        {/* Pastikan nama file foto sesuai dengan yang ada di folder public */}
         <Image
           src="/foto.jpg"
           alt="Raditya Ananda Satria"
-          width={500} // Tentukan ukuran resolusi asli gambar (atau estimasi)
-          height={600} // Tentukan tinggi, atau sesuaikan rasio aspek gambar Anda
+          width={500} 
+          height={600} 
           className="w-full h-auto object-cover opacity-90 group-hover:opacity-100 transition-all duration-500 group-hover:scale-105"
-          priority // Opsional: Tambahkan ini agar foto dimuat duluan (karena ini foto utama)
+          priority 
         />
         
         <div className="absolute inset-0 bg-linear-to-t from-black/90 via-transparent to-transparent opacity-50 group-hover:opacity-70 transition-opacity duration-500" />
@@ -83,57 +85,44 @@ const ProfileCard = () => {
   );
 };
 
-const AboutSection = () => {
+// --- ABOUT SECTION UTAMA ---
+interface AboutSectionProps {
+  profile?: Profile | null; // Terima Data Profile
+}
+
+const AboutSection = ({ profile }: AboutSectionProps) => {
   const { t, language } = useLanguage();
 
   const skillsData = [
     {
       icon: Code,
       name: "React & Next.js",
-      desc: {
-        en: "Modern React ecosystems.",
-        id: "Ekosistem React modern."
-      }
+      desc: { en: "Modern React ecosystems.", id: "Ekosistem React modern." }
     },
     {
       icon: Terminal,
       name: "TypeScript",
-      desc: {
-        en: "Type-safe & scalable code.",
-        id: "Kode aman & berskala."
-      }
+      desc: { en: "Type-safe & scalable code.", id: "Kode aman & berskala." }
     },
     {
       icon: Layout,
       name: "Tailwind CSS",
-      desc: {
-        en: "Utility-first CSS styling.",
-        id: "Styling CSS utility-first."
-      }
+      desc: { en: "Utility-first CSS styling.", id: "Styling CSS utility-first." }
     },
     {
       icon: Database,
       name: "Node.js & MySQL",
-      desc: {
-        en: "Robust backend services.",
-        id: "Layanan backend tangguh."
-      }
+      desc: { en: "Robust backend services.", id: "Layanan backend tangguh." }
     },
     {
       icon: Palette,
       name: "Figma, Canva & UI/UX",
-      desc: {
-        en: "Intuitive user experiences.",
-        id: "Pengalaman pengguna intuitif."
-      }
+      desc: { en: "Intuitive user experiences.", id: "Pengalaman pengguna intuitif." }
     },
     {
       icon: Smartphone,
       name: "Responsive Web",
-      desc: {
-        en: "Perfect on all devices.",
-        id: "Sempurna di semua perangkat."
-      }
+      desc: { en: "Perfect on all devices.", id: "Sempurna di semua perangkat." }
     }
   ];
 
@@ -160,12 +149,12 @@ const AboutSection = () => {
           {/* BAGIAN ATAS: Foto (Kiri) & Story (Kanan) */}
           <div className="grid md:grid-cols-12 gap-12 items-start mb-20">
             
-            {/* Kolom Foto (Lebar sekitar 1/3) */}
+            {/* Kolom Foto */}
             <div className="md:col-span-4 lg:col-span-4">
               <ProfileCard />
             </div>
 
-            {/* Kolom Story (Lebar sekitar 2/3) */}
+            {/* Kolom Story */}
             <div className="md:col-span-8 lg:col-span-8 space-y-8">
               <div>
                 <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -195,19 +184,24 @@ const AboutSection = () => {
                 </div>
               </div>
 
-              {/* Download CV Button */}
-              <motion.button 
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-primary/20 bg-primary/5 text-primary font-medium hover:bg-primary/10 transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                Download CV
-              </motion.button>
+              {/* Download CV Button (SUDAH DINAMIS DARI DB) */}
+              {profile?.cvUrl && (
+                <motion.a 
+                  href={profile.cvUrl} // Link dari Database
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-primary/20 bg-primary/5 text-primary font-medium hover:bg-primary/10 transition-colors cursor-pointer"
+                >
+                  <Download className="w-4 h-4" />
+                  {language === "id" ? "Unduh CV" : "Download CV"}
+                </motion.a>
+              )}
             </div>
           </div>
 
-          {/* BAGIAN BAWAH: Skills (Flexbox agar sisa item ke tengah) */}
+          {/* BAGIAN BAWAH: Skills */}
           <div>
             <h3 className="text-2xl font-bold mb-8 flex items-center justify-center gap-2">
               <span className="w-8 h-1 bg-accent rounded-full"></span>
@@ -215,7 +209,6 @@ const AboutSection = () => {
               <span className="w-8 h-1 bg-accent rounded-full"></span>
             </h3>
             
-            {/* REVISI: Menggunakan Flexbox dengan wrap dan justify-center */}
             <div className="flex flex-wrap justify-center gap-4">
               {skillsData.map((skill, index) => (
                 <motion.div
@@ -224,8 +217,6 @@ const AboutSection = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1, duration: 0.5 }}
-                  // REVISI: Mengatur lebar item secara manual agar konsisten
-                  // Mobile: 100%, Tablet: 50% (minus gap), Desktop: 25% (minus gap)
                   className="w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(25%-0.75rem)] p-4 rounded-xl glass hover:bg-secondary/50 transition-colors border border-white/5 group flex flex-col items-center text-center md:items-start md:text-left"
                 >
                   <div className="p-2 bg-primary/10 rounded-lg text-primary mb-3 group-hover:scale-110 transition-transform duration-300">

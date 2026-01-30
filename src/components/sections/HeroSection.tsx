@@ -1,138 +1,123 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ArrowRight, Mouse, FolderOpen } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Profile } from "@prisma/client";
+import { Typewriter } from "@/components/Typewriter";
 
-const HeroSection = () => {
-  const { t } = useLanguage();
+interface HeroSectionProps {
+  profile: Profile | null;
+}
 
-  const scrollToAbout = () => {
-    const element = document.getElementById("about");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+const HeroSection = ({ profile }: HeroSectionProps) => {
+  const { t, language } = useLanguage();
+
+  const rawString = language === "id" 
+    ? (profile?.typewriterId || "Pengembang Web, Desainer") 
+    : (profile?.typewriterEn || "Web Developer, Designer");
+
+  // FIX: Tambahkan tipe string eksplisit untuk 's'
+  const typewriterArray = rawString.split(",").map((s: string) => s.trim());
 
   return (
-    <section
-      id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-transparent"
-    >
-      {/* Background Gradient Orbs */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute -top-1/2 -left-1/2 w-full h-full bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-accent/20 via-transparent to-transparent rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.4, 0.3, 0.4],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-      </div>
+    <section id="home" className="min-h-screen flex items-center justify-center pt-0 relative overflow-hidden">
+      
+      <div className="absolute inset-0 w-full h-full bg-grid-white/[0.02] -z-10" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-4xl bg-primary/20 blur-[120px] rounded-full opacity-20 -z-10" />
 
-      <div className="container relative z-10 px-6">
-        <div className="max-w-4xl mx-auto text-center">
+      <div className="container px-6 relative z-10">
+        <div className="text-center max-w-4xl mx-auto">
           
-          {/* Badge "Available for Work" */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="inline-block mb-6"
+          >
+            <div className={`px-4 py-1.5 rounded-full border flex items-center gap-2 text-sm font-medium ${
+              profile?.isOpenToWork 
+                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" 
+                : "bg-red-500/10 border-red-500/20 text-red-500"
+            }`}>
+              <div className={`w-2 h-2 rounded-full ${profile?.isOpenToWork ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`} />
+              {profile?.isOpenToWork 
+                ? t("hero.available") 
+                : (language === "id" ? "Sedang Sibuk" : "Currently Busy")
+              }
+            </div>
+          </motion.div>
+
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-8"
+            className="text-5xl md:text-7xl font-bold mb-6 tracking-tight"
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-sm font-medium text-emerald-500">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-              </span>
-              {t("contact.availableForWork")}
-            </span>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <p className="text-muted-foreground text-lg md:text-xl mb-4 tracking-wide">
-              {t("hero.greeting")}
-            </p>
-          </motion.div>
-
-          <motion.h1
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
-            <span className="gradient-text">Raditya</span>
-            <br />
-            <span className="text-foreground">Ananda Satria</span>
+            {t("hero.greeting")} <br />
+            <span className="gradient-text">{profile?.name || "Raditya"}</span>
           </motion.h1>
 
-          <motion.p
-            className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-12"
-            initial={{ opacity: 0, y: 30 }}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto flex flex-col md:flex-row justify-center items-center gap-2"
           >
-            <span className="text-foreground font-medium">{t("hero.role")}</span>
-            {" | "}
-            <span className="text-primary font-medium">{t("hero.role2")}</span>
-          </motion.p>
-
-          <motion.div
-            className="flex flex-wrap gap-4 justify-center"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
-          >
-            {/* PERBAIKAN: Mengganti min-w-[180px] menjadi min-w-45 agar warning hilang */}
-            <button
-              onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
-              className="min-w-45 px-8 py-4 bg-primary text-primary-foreground rounded-full font-semibold hover:opacity-90 transition-all duration-300 glow-primary"
-            >
-              {t("hero.cta1")}
-            </button>
-            <button
-              onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}
-              className="min-w-45 px-8 py-4 glass rounded-full font-semibold hover-glow"
-            >
-              {t("hero.cta2")}
-            </button>
+            <span className="whitespace-nowrap">
+                {language === 'id' ? profile?.roleId : profile?.roleEn} |
+            </span>
+            
+            <Typewriter 
+              texts={typewriterArray} 
+              // FIX: Ganti min-w-[150px] jadi min-w-36 agar sesuai standar Tailwind
+              className="text-primary font-semibold min-w-36 text-left"
+              typingSpeed={100}
+              deletingSpeed={50}
+              pauseTime={1500}
+            />
           </motion.div>
 
-          <motion.button
-            onClick={scrollToAbout}
-            className="mt-16 mx-auto block"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, y: [0, 10, 0] }}
-            transition={{
-              opacity: { delay: 1, duration: 0.5 },
-              y: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-            }}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
-            <ChevronDown className="w-8 h-8 text-muted-foreground" />
-          </motion.button>
+            <a 
+              href="#contact"
+              className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium hover:opacity-90 transition-all hover-glow flex items-center gap-2"
+            >
+              {t("hero.cta1")} <ArrowRight className="w-4 h-4" />
+            </a>
+            
+            <a 
+              href="#projects"
+              className="px-8 py-4 bg-secondary/50 backdrop-blur-sm border border-border rounded-full font-medium hover:bg-secondary transition-all flex items-center gap-2 group"
+            >
+              {language === "id" ? "Lihat Proyek" : "View Projects"}
+              <FolderOpen className="w-4 h-4 group-hover:translate-y-1 transition-transform" />
+            </a>
+          </motion.div>
         </div>
       </div>
+
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1, duration: 1 }}
+        className="absolute bottom-12 left-1/2 transform -translate-x-1/2"
+      >
+        <motion.div
+          animate={{ y: [0, 12, 0] }} 
+          transition={{ duration: 1.5, repeat: Infinity, repeatType: "loop" }}
+          className="flex flex-col items-center gap-3" 
+        >
+          <span className="text-sm font-medium uppercase tracking-widest text-muted-foreground/70">Scroll</span>
+          <Mouse className="w-10 h-10 text-muted-foreground" />
+        </motion.div>
+      </motion.div>
+
     </section>
   );
 };

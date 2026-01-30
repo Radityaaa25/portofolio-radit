@@ -1,62 +1,81 @@
-import { Github, Instagram, Mail } from "lucide-react";
+"use client";
+
+import { motion } from "framer-motion";
+import { Github, Linkedin, Instagram, Heart } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Typewriter } from "@/components/Typewriter";
 
 const FooterSection = () => {
+  // Hapus 't' karena memang tidak dipakai di sini
+  const { language } = useLanguage();
+
   const currentYear = new Date().getFullYear();
 
+  const footerHobbies = [
+    "main game 🎮",
+    "ngoding 💻",
+    "olahraga 🏀",
+    "kulineran 🍜"
+  ];
+
+  const socialLinks = [
+    { icon: Github, href: "https://github.com/radityaaa25", label: "Github" },
+    { icon: Linkedin, href: "https://linkedin.com/in/radityaaa", label: "LinkedIn" },
+    { icon: Instagram, href: "https://instagram.com/radityaaa", label: "Instagram" },
+  ];
+
   return (
-    <footer className="py-12 relative overflow-hidden pb-32">
-      <div className="container px-6 relative z-10">
-        <div className="glass rounded-3xl p-8 md:p-10 border border-white/10">
-          {/* Flex Container: Mobile = Column (Tumpuk), Desktop = Row (Baris) */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 md:gap-0">
+    <footer className="bg-secondary/20 border-t border-border/50 py-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-white/[0.02] -z-10" />
+        
+      <div className="container px-6">
+        <div className="grid md:grid-cols-3 gap-8 items-center text-center md:text-left">
             
-            {/* BAGIAN KIRI: Nama & Copyright */}
-            <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-2 order-2 md:order-1 w-full md:w-auto">
-              <h3 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-                Raditya Ananda Satria
-              </h3>
-              <p className="text-muted-foreground font-medium text-lg">
-                Fullstack Web Developer
-              </p>
-              <p className="text-sm text-muted-foreground/60 pt-2">
-                &copy; {currentYear} Raditya Ananda Satria. All rights reserved.
-              </p>
+            {/* Kolom Kiri: Brand & Hobi */}
+            <div className="space-y-4">
+                {/* FIX: Ganti bg-gradient-to-r jadi bg-linear-to-r */}
+                <h3 className="text-2xl font-bold bg-linear-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                    Raditya A.S.
+                </h3>
+                
+                <div className="text-muted-foreground flex flex-col md:flex-row items-center md:items-start gap-2 justify-center md:justify-start">
+                    <span>
+                        {language === 'id' ? "Suka banget sama:" : "Passionate about:"}
+                    </span>
+                    <Typewriter 
+                        texts={footerHobbies}
+                        className="text-foreground font-medium"
+                        typingSpeed={100}
+                        pauseTime={1500}
+                    />
+                </div>
             </div>
 
-            {/* BAGIAN KANAN: Social Icons */}
-            <div className="flex items-center gap-4 order-1 md:order-2">
-              <a
-                href="https://github.com/Radityaaa25" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 glass rounded-full hover:bg-primary hover:text-white transition-all duration-300 hover:scale-110"
-                aria-label="GitHub"
-              >
-                <Github className="w-5 h-5" />
-              </a>
-              
-              {/* REVISI: Mengganti LinkedIn menjadi Instagram */}
-              <a
-                href="https://www.instagram.com/rdityaas?igsh=MWVjeTcwMGhwM3VuaQ%3D%3D&utm_source=qr" 
-                target="_blank"
-                rel="noopener noreferrer"
-                // Warna hover diganti jadi khas Instagram (#E1306C)
-                className="p-3 glass rounded-full hover:bg-[#E1306C] hover:text-white transition-all duration-300 hover:scale-110"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-
-              <a
-                href="mailto:radityaanandasatria@gmail.com" 
-                className="p-3 glass rounded-full hover:bg-red-500 hover:text-white transition-all duration-300 hover:scale-110"
-                aria-label="Email"
-              >
-                <Mail className="w-5 h-5" />
-              </a>
+            {/* Kolom Tengah: Social Links */}
+            <div className="flex justify-center gap-4">
+                {socialLinks.map((social, index) => (
+                    <motion.a
+                        key={index}
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        whileHover={{ y: -5, scale: 1.1 }}
+                        className="p-3 bg-background border border-border rounded-full text-muted-foreground hover:text-primary hover:border-primary transition-all shadow-sm"
+                        aria-label={social.label}
+                    >
+                        <social.icon className="w-5 h-5" />
+                    </motion.a>
+                ))}
             </div>
 
-          </div>
+            {/* Kolom Kanan: Copyright */}
+            <div className="text-muted-foreground text-sm flex flex-col items-center md:items-end gap-2">
+                <p>© {currentYear} Raditya. All rights reserved.</p>
+                <p className="flex items-center gap-1.5">
+                    Dibuat dengan <Heart className="w-4 h-4 text-red-500 animate-pulse fill-red-500" /> pakai Next.js
+                </p>
+            </div>
+
         </div>
       </div>
     </footer>

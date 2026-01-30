@@ -1,0 +1,97 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// 1. Model Profile (Untuk CV & Info Diri)
+// Admin bisa ganti link CV kapan saja di sini
+model Profile {
+  id           String   @id @default(cuid())
+  name         String
+  roleEn       String   // Role Utama (misal: Information Systems Student)
+  roleId       String   // Role Utama (misal: Mahasiswa Sistem Informasi)
+  
+  // TAMBAHAN BARU:
+  typewriterEn String?  @default("Web Developer, UI/UX Designer, Tech Enthusiast") 
+  typewriterId String?  @default("Pengembang Web, Desainer UI/UX, Antusias Teknologi")
+  
+  aboutEn      String?  @db.Text
+  aboutId      String?  @db.Text
+  cvUrl        String?
+  photoUrl     String?
+  isOpenToWork Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// 2. Model Category (Agar Kategori Proyek Dinamis)
+// Admin bisa tambah/hapus kategori: "Web", "UI/UX", "Mobile"
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  projects  Project[] // Relasi ke tabel Project
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// 3. Model Project (Terhubung ke Kategori)
+model Project {
+  id            String   @id @default(cuid())
+  title         String
+  descriptionId String   @db.Text
+  descriptionEn String   @db.Text
+  
+  // NAMA KOLOM HARUS INI:
+  techStack     String[] 
+  imageUrl      String?
+  demoUrl       String?
+  repoUrl       String?
+  
+  categoryId    String
+  category      Category @relation(fields: [categoryId], references: [id])
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// 4. Model Experience (Pendidikan, Organisasi, Pekerjaan)
+model Experience {
+  id            String   @id @default(cuid())
+  type          String   // "education", "organization", "work"
+  roleEn        String
+  roleId        String
+  place         String
+  period        String
+  descriptionEn String   @db.Text
+  descriptionId String   @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// 5. Model Certificate
+model Certificate {
+  id            String   @id @default(cuid())
+  title         String   // Nama Sertifikat
+  issuer        String   // Penerbit (misal: Dicoding, Coursera)
+  issuedAt      DateTime // Tanggal Terbit
+  credentialUrl String?  // Link ke sertifikat asli (opsional)
+  imageUrl      String   // Foto sertifikat
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// 6. Model Admin (Login Dashboard)
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}

@@ -1,42 +1,58 @@
 "use client";
 
-import { useState } from "react";
-import ThemeLanguageToggle from "@/components/ThemeLanguageToggle"; // IMPORT BARU
+import { useState, useEffect } from "react";
+import IntroAnimation from "@/components/IntroAnimation";
+import ThemeLanguageToggle from "@/components/ThemeLanguageToggle";
 import FloatingNavbar from "@/components/FloatingNavbar";
 import HeroSection from "@/components/sections/HeroSection";
 import AboutSection from "@/components/sections/AboutSection";
-import ToolsSection from "@/components/sections/ToolsSection";
 import ExperienceSection from "@/components/sections/ExperienceSection";
 import ProjectsSection from "@/components/sections/ProjectsSection";
+import ToolsSection from "@/components/sections/ToolsSection";
 import CertificatesSection from "@/components/sections/CertificatesSection";
 import ContactSection from "@/components/sections/ContactSection";
 import FooterSection from "@/components/sections/FooterSection";
-import IntroAnimation from "@/components/IntroAnimation";
+import { getPortfolioData, type PortfolioData } from "@/actions/portofolio";
 
 export default function Home() {
   const [showIntro, setShowIntro] = useState(true);
+  const [data, setData] = useState<PortfolioData | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await getPortfolioData();
+        setData(result);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-primary/20 selection:text-primary">
-      {/* Jika showIntro true, tampilkan HANYA animasi. Jika false, tampilkan website */}
-      {showIntro ? (
-        <IntroAnimation onComplete={() => setShowIntro(false)} />
-      ) : (
+    <main className="bg-background min-h-screen relative selection:bg-primary/30">
+      {showIntro && <IntroAnimation onComplete={() => setShowIntro(false)} />}
+
+      {!showIntro && (
         <>
-          <ThemeLanguageToggle /> {/* PASANG TOGGLE DISINI */}
           <FloatingNavbar />
-          <main>
-            <HeroSection />
-            <AboutSection />
-            <ToolsSection />
-            <ExperienceSection />
-            <ProjectsSection />
-            <CertificatesSection />
-            <ContactSection />
-          </main>
+          <ThemeLanguageToggle />
+          
+          <HeroSection profile={data?.profile || null} />
+          
+          {/* FIX: Kirim data profile ke AboutSection */}
+          <AboutSection profile={data?.profile || null} />
+          
+          <ExperienceSection experiences={data?.experiences || []} />
+          <ProjectsSection projects={data?.projects || []} categories={data?.categories || []} />
+          <ToolsSection />
+          <CertificatesSection />
+          <ContactSection />
           <FooterSection />
         </>
       )}
-    </div>
+    </main>
   );
 }

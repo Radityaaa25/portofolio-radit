@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, User, Briefcase, FolderOpen, Mail, Menu, X, Award, Wrench } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -24,22 +24,47 @@ const FloatingNavbar = () => {
   const [activeSection, setActiveSection] = useState("hero");
   const { t } = useLanguage();
 
+  // FIX: Tambahkan ref untuk mendeteksi apakah user sedang mengklik menu
+  const isManualScroll = useRef(false);
+
   const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-      // Kita set active section manual agar responsif instan saat klik
-      setActiveSection(id);
-    }
+    // 1. Kunci Scroll Spy agar tidak "mampir-mampir"
+    isManualScroll.current = true;
+    
+    // 2. Set aktif langsung ke tujuan
+    setActiveSection(id);
     setIsMenuOpen(false);
+
+    if (id === "hero") {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    } else {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+
+    // 3. Buka kunci setelah animasi scroll selesai (estimasi 1 detik)
+    setTimeout(() => {
+      isManualScroll.current = false;
+    }, 1000);
   };
 
   // --- LOGIC SCROLL SPY ---
   useEffect(() => {
     const handleScroll = () => {
-      // Offset 40% dari tinggi layar.
-      // Artinya, section baru dianggap "aktif" jika sudah masuk mendekati tengah layar.
+      // FIX: Jika sedang scroll manual (klik menu), abaikan logika ini
+      if (isManualScroll.current) return;
+
       const scrollPosition = window.scrollY + window.innerHeight * 0.4;
+
+      if (window.scrollY < 100) {
+        setActiveSection("hero");
+        return;
+      }
 
       for (const item of navItems) {
         const section = document.getElementById(item.id);
@@ -47,7 +72,6 @@ const FloatingNavbar = () => {
           const sectionTop = section.offsetTop;
           const sectionHeight = section.offsetHeight;
 
-          // Cek apakah posisi scroll kita berada di dalam area section ini
           if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
             setActiveSection(item.id);
           }
@@ -55,17 +79,15 @@ const FloatingNavbar = () => {
       }
     };
 
-    // Jalankan saat load dan saat scroll
     window.addEventListener("scroll", handleScroll);
-    handleScroll(); // Initial check
+    handleScroll(); 
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
     <>
-      {/* Desktop & Tablet Navbar - BOTTOM CENTER */}
-      {/* Posisi sudah diperbaiki: bottom-10 (naik) dan ditengah */}
+      {/* Desktop & Tablet Navbar */}
       <motion.nav
         className="fixed bottom-10 left-1/2 z-50 hidden sm:block"
         initial={{ y: 100, x: "-50%", opacity: 0 }}
@@ -92,8 +114,7 @@ const FloatingNavbar = () => {
         </div>
       </motion.nav>
 
-      {/* Mobile Navbar - BOTTOM RIGHT CORNER */}
-      {/* Posisi sudah diperbaiki: bottom-10 (naik) dan dikanan (right-6) */}
+      {/* Mobile Navbar */}
       <motion.nav
         className="fixed bottom-10 right-6 z-50 sm:hidden"
         initial={{ scale: 0, opacity: 0 }}
@@ -129,7 +150,7 @@ const FloatingNavbar = () => {
           </AnimatePresence>
         </button>
 
-        {/* Mobile Menu - Drops up from bottom right */}
+        {/* Mobile Menu */}
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
@@ -139,7 +160,7 @@ const FloatingNavbar = () => {
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             >
-              <div className="p-2 min-w-[160px]">
+              <div className="p-2 min-w-40">
                 {navItems.map((item, index) => (
                   <motion.button
                     key={item.id}
