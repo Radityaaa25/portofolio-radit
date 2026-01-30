@@ -41,3 +41,22 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# --- TAMBAHAN PENTING ---
+
+# System Files (Windows)
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# VS Code (Setting lokal editor biar ga bentrok sama orang lain)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Supabase (Jika ada config lokal)
+supabase/.branches
+supabase/.temp
+
+# TypeScript
+*.tsbuildinfo
