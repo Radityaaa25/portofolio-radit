@@ -18,26 +18,34 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         try {
           const { email, password } = await loginSchema.parseAsync(credentials);
 
-          const admin = await prisma.admin.findUnique({
+          // FIX: Gunakan 'prisma.user' (sesuai seed.ts), bukan 'prisma.admin'
+          const user = await prisma.user.findUnique({
             where: { email },
           });
 
-          if (!admin) return null;
+          if (!user) return null;
 
-          const isPasswordValid = await bcrypt.compare(password, admin.password);
-          const isDevPasswordValid = password === admin.password; 
+          // Cek Password Hash
+          const isPasswordValid = await bcrypt.compare(password, user.password);
+          
+          if (!isPasswordValid) return null;
 
-          if (!isPasswordValid && !isDevPasswordValid) return null;
-
-          return { id: admin.id, email: admin.email };
-        } catch (error) {
+          // Return data user yang berhasil login
+          return { 
+            id: user.id, 
+            email: user.email, 
+            name: user.name 
+          };
+          
+        } catch {
+          // FIX: Hapus '(error)' biar gak ada warning "unused variable"
           return null;
         }
       },
     }),
   ],
   pages: {
-    signIn: "/admin/login",
+    signIn: "/admin/login", // Pastikan route halaman login bener ini
   },
   callbacks: {
     async session({ session, token }) {
@@ -53,5 +61,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
   },
-  secret: process.env.AUTH_SECRET,
+  secret: process.env.AUTH_SECRET, // Pastikan variabel ini ada di .env
 });
