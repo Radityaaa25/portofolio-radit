@@ -1,11 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ExternalLink, Github, Loader2, X, Eye } from "lucide-react"; 
+import { ExternalLink, Github, X, Eye } from "lucide-react"; // Loader2 dihapus
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState } from "react"; 
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getProjects, getCategories } from "@/actions/projects";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +22,7 @@ type Category = {
   name: string;
 };
 
+// Sesuaikan tipe data dengan Prisma Result
 type Project = {
   id: string;
   title: string;
@@ -34,37 +34,22 @@ type Project = {
   repoUrl: string | null;
   categoryId: string;
   category: Category;
+  createdAt?: Date;
+  updatedAt?: Date;
 };
 
-const ProjectsSection = () => {
+// Props Interface (PENTING AGAR VERCEL TIDAK ERROR)
+interface ProjectsSectionProps {
+  projects: Project[];
+  categories: Category[];
+}
+
+const ProjectsSection = ({ projects, categories }: ProjectsSectionProps) => {
   const { t, language } = useLanguage();
   const [activeCategory, setActiveCategory] = useState("All");
   
-  // State Data
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-
   // State Popup
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [projectsData, categoriesData] = await Promise.all([
-          getProjects(),
-          getCategories(),
-        ]);
-        setProjects(projectsData as unknown as Project[]);
-        setCategories(categoriesData);
-      } catch (error) {
-        console.error("Gagal ambil data:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
 
   const filteredProjects = activeCategory === "All"
     ? projects
@@ -82,9 +67,10 @@ const ProjectsSection = () => {
           </p>
         </div>
 
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        {/* Cek Data Kosong */}
+        {projects.length === 0 ? (
+          <div className="flex justify-center py-20 text-muted-foreground">
+             <p>{language === 'id' ? "Belum ada project yang ditampilkan." : "No projects to display."}</p>
           </div>
         ) : (
           <>
@@ -192,16 +178,13 @@ const ProjectsSection = () => {
         {/* POP-UP: FRAMER MOTION CENTER POP (NO SLIDE) */}
         {/* ========================================================= */}
         <Dialog open={!!selectedProject} onOpenChange={(open) => !open && setSelectedProject(null)}>
-          {/* TRICK: Wadah DialogContent dibuat transparan, tanpa border/shadow, dan animasi CSS dimatikan (!animate-none).
-            Posisinya tetap di tengah (left-1/2 top-1/2 -translate...).
-            Isinya kita animasiin pake motion.div biar 100% smooth.
-          */}
+          {/* FIX: animate-none! (tanda seru di belakang) sesuai saran Tailwind */}
           <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl p-0 border-none bg-transparent shadow-none animate-none!">
             
             <motion.div 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} // Custom bezier curve (Pop Effect)
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} 
               className="bg-background border border-border shadow-2xl sm:rounded-2xl overflow-hidden flex flex-col max-h-[85vh]"
             >
               
