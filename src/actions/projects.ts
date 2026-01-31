@@ -8,9 +8,32 @@ import { auth } from "@/lib/auth";
 type ActionResponse = {
   success?: boolean;
   error?: string;
-};
+} | null;
 
-export async function createProject(formData: FormData): Promise<ActionResponse> {
+// ==========================================
+// 1. READ FUNCTIONS
+// ==========================================
+
+export async function getProjects() {
+  return await prisma.project.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      category: true,
+    },
+  });
+}
+
+export async function getCategories() {
+  return await prisma.category.findMany({
+    orderBy: { name: "asc" },
+  });
+}
+
+// ==========================================
+// 2. PROJECT WRITE FUNCTIONS
+// ==========================================
+
+export async function createProject(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
   const session = await auth();
   if (!session) return { error: "Unauthorized" };
 
@@ -20,7 +43,7 @@ export async function createProject(formData: FormData): Promise<ActionResponse>
     const descriptionEn = formData.get("descriptionEn") as string;
     
     const techStackString = formData.get("techStack") as string;
-    const techStack = techStackString.split(",").map((t) => t.trim());
+    const techStack = techStackString.split(",").map((t) => t.trim()).filter(t => t);
 
     const demoUrl = formData.get("demoUrl") as string;
     const repoUrl = formData.get("repoUrl") as string;
@@ -30,12 +53,15 @@ export async function createProject(formData: FormData): Promise<ActionResponse>
     let imageUrl = ""; 
 
     if (imageFile && imageFile.size > 0) {
-      const fileName = `${Date.now()}-${imageFile.name.replaceAll(" ", "-")}`;
-      const { error } = await supabase.storage.from("portfolio").upload(fileName, imageFile, { upsert: false });
+      const fileName = `project-${Date.now()}-${imageFile.name.replaceAll(" ", "-")}`;
       
-      if (error) throw new Error(error.message);
+      const { error } = await supabase.storage
+        .from("portofolio") 
+        .upload(fileName, imageFile, { upsert: false });
       
-      const { data } = supabase.storage.from("portfolio").getPublicUrl(fileName);
+      if (error) throw new Error("Gagal upload gambar: " + error.message);
+      
+      const { data } = supabase.storage.from("portofolio").getPublicUrl(fileName);
       imageUrl = data.publicUrl;
     }
 
@@ -56,12 +82,9 @@ export async function createProject(formData: FormData): Promise<ActionResponse>
     revalidatePath("/admin/projects");
     return { success: true };
 
-  } catch (error: unknown) {
+  } catch (error) {
     console.error("Error creating project:", error);
-    let message = "Gagal membuat project";
-    if (error instanceof Error) {
-        message = error.message;
-    }
+    const message = error instanceof Error ? error.message : "Gagal membuat project";
     return { error: message };
   }
 }
@@ -74,7 +97,53 @@ export async function deleteProject(id: string): Promise<ActionResponse> {
     revalidatePath("/");
     revalidatePath("/admin/projects");
     return { success: true };
-  } catch { // FIX: Hapus '(error)' disini agar tidak kena warning 'unused variable'
+  } catch {
     return { error: "Gagal hapus project" };
+  }
+}
+
+// ==========================================
+// 3. CATEGORY WRITE FUNCTIONS (BARU! ✨)
+// ==========================================
+
+export async function createCategory(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
+  const session = await auth();
+  if (!session) return { error: "Unauthorized" };
+
+  try {
+    const name = formData.get("name") as string;
+    if (!name) return { error: "Nama kategori wajib diisi" };
+
+    // Cek duplikat
+    const existing = await prisma.category.findUnique({ where: { name } });
+    if (existing) return { error: "Kategori sudah ada!" };
+
+    await prisma.category.create({ data: { name } });
+
+    revalidatePath("/admin/projects");
+    revalidatePath("/admin/projects/new");
+    return { success: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Gagal membuat kategori";
+    return { error: message };
+  }
+}
+
+export async function deleteCategory(id: string): Promise<ActionResponse> {
+  const session = await auth();
+  if (!session) return { error: "Unauthorized" };
+
+  try {
+    // Cek apakah kategori dipakai project?
+    const count = await prisma.project.count({ where: { categoryId: id } });
+    if (count > 0) return { error: "Gagal: Masih ada project di kategori ini!" };
+
+    await prisma.category.delete({ where: { id } });
+    
+    revalidatePath("/admin/projects");
+    revalidatePath("/admin/projects/new");
+    return { success: true };
+  } catch {
+    return { error: "Gagal menghapus kategori" };
   }
 }
