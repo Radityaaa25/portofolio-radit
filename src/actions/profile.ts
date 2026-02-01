@@ -1,101 +1,133 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 
-// Definisi tipe return
-type ActionState = {
+type ActionResponse = {
   success?: boolean;
-  message?: string;
   error?: string;
 } | null;
 
-export async function getProfile() {
-  const profile = await prisma.profile.findFirst();
-  return profile;
+// ==========================================
+// 1. READ FUNCTIONS
+// ==========================================
+
+export async function getProjects() {
+  return await prisma.project.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      category: true,
+    },
+  });
 }
 
-export async function updateProfile(prevState: ActionState, formData: FormData): Promise<ActionState> {
+export async function getCategories() {
+  return await prisma.category.findMany({
+    orderBy: { name: "asc" },
+  });
+}
+
+// ==========================================
+// 2. PROJECT WRITE FUNCTIONS
+// ==========================================
+
+export async function createProject(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
+  const session = await auth();
+  if (!session) return { error: "Unauthorized" };
+
+  try {
+    const title = formData.get("title") as string;
+    const descriptionId = formData.get("descriptionId") as string;
+    const descriptionEn = formData.get("descriptionEn") as string;
+    
+    const techStackString = formData.get("techStack") as string;
+    const techStack = techStackString.split(",").map((t) => t.trim()).filter(t => t);
+
+    const demoUrl = formData.get("demoUrl") as string;
+    const repoUrl = formData.get("repoUrl") as string;
+    const categoryId = formData.get("categoryId") as string;
+    
+    // PERUBAHAN DI SINI: Kita ambil URL string, bukan File object
+    const imageUrl = formData.get("imageUrl") as string; 
+
+    await prisma.project.create({
+      data: {
+        title,
+        descriptionId,
+        descriptionEn,
+        techStack,     
+        imageUrl, // URL sudah dikirim dari frontend     
+        demoUrl,       
+        repoUrl,       
+        categoryId,
+      },
+    });
+
+    revalidatePath("/");
+    revalidatePath("/admin/projects");
+    return { success: true };
+
+  } catch (error) {
+    console.error("Error creating project:", error);
+    const message = error instanceof Error ? error.message : "Gagal membuat project";
+    return { error: message };
+  }
+}
+
+export async function deleteProject(id: string): Promise<ActionResponse> {
+  const session = await auth();
+  if (!session) return { error: "Unauthorized" };
+  try {
+    await prisma.project.delete({ where: { id } });
+    revalidatePath("/");
+    revalidatePath("/admin/projects");
+    return { success: true };
+  } catch {
+    return { error: "Gagal hapus project" };
+  }
+}
+
+// ==========================================
+// 3. CATEGORY WRITE FUNCTIONS
+// ==========================================
+
+export async function createCategory(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
   const session = await auth();
   if (!session) return { error: "Unauthorized" };
 
   try {
     const name = formData.get("name") as string;
-    const roleId = formData.get("roleId") as string;
-    const roleEn = formData.get("roleEn") as string;
-    const typewriterId = formData.get("typewriterId") as string;
-    const typewriterEn = formData.get("typewriterEn") as string;
-    const aboutId = formData.get("aboutId") as string;
-    const aboutEn = formData.get("aboutEn") as string;
-    const isOpenToWork = formData.get("isOpenToWork") === "on";
+    if (!name) return { error: "Nama kategori wajib diisi" };
 
-    const photoFile = formData.get("photo") as File;
-    const cvFile = formData.get("cv") as File;
+    const existing = await prisma.category.findUnique({ where: { name } });
+    if (existing) return { error: "Kategori sudah ada!" };
 
-    const existingProfile = await prisma.profile.findFirst();
+    await prisma.category.create({ data: { name } });
 
-    let photoUrl = existingProfile?.photoUrl || "";
-    let cvUrl = existingProfile?.cvUrl || "";
-
-    // Upload Foto
-    if (photoFile && photoFile.size > 0) {
-      const fileName = `profile-${Date.now()}`; 
-      
-      // FIX: Ganti 'portfolio' jadi 'portofolio' (sesuai nama bucket abang)
-      const { error } = await supabase.storage 
-        .from("portofolio") 
-        .upload(fileName, photoFile, { upsert: false });
-
-      if (error) throw new Error("Gagal upload foto: " + error.message);
-      
-      const publicUrl = supabase.storage.from("portofolio").getPublicUrl(fileName).data.publicUrl;
-      photoUrl = publicUrl;
-    }
-
-    // Upload CV
-    if (cvFile && cvFile.size > 0) {
-      const fileName = `cv-${Date.now()}`;
-      
-      // FIX: Ganti 'portfolio' jadi 'portofolio'
-      const { error } = await supabase.storage
-        .from("portofolio")
-        .upload(fileName, cvFile, { upsert: false });
-
-      if (error) throw new Error("Gagal upload CV: " + error.message);
-      
-      const publicUrl = supabase.storage.from("portofolio").getPublicUrl(fileName).data.publicUrl;
-      cvUrl = publicUrl;
-    }
-
-    // Simpan Database
-    if (existingProfile) {
-      await prisma.profile.update({
-        where: { id: existingProfile.id },
-        data: {
-          name, roleId, roleEn, typewriterId, typewriterEn, aboutId, aboutEn,
-          isOpenToWork, photoUrl, cvUrl
-        }
-      });
-    } else {
-      await prisma.profile.create({
-        data: {
-          name, roleId, roleEn, typewriterId, typewriterEn, aboutId, aboutEn,
-          isOpenToWork, photoUrl, cvUrl
-        }
-      });
-    }
-
-    revalidatePath("/", "layout"); 
-    revalidatePath("/admin/profile");
-    
-    return { success: true, message: "Profile berhasil disimpan!" };
-
+    revalidatePath("/admin/projects");
+    revalidatePath("/admin/projects/new");
+    return { success: true };
   } catch (error) {
-    console.error("Update Error:", error);
-    let message = "Gagal menyimpan profile";
-    if (error instanceof Error) message = error.message;
+    const message = error instanceof Error ? error.message : "Gagal membuat kategori";
     return { error: message };
+  }
+}
+
+export async function deleteCategory(id: string): Promise<ActionResponse> {
+  const session = await auth();
+  if (!session) return { error: "Unauthorized" };
+
+  try {
+    const count = await prisma.project.count({ where: { categoryId: id } });
+    if (count > 0) return { error: "Gagal: Masih ada project di kategori ini!" };
+
+    await prisma.category.delete({ where: { id } });
+    
+    revalidatePath("/admin/projects");
+    revalidatePath("/admin/projects/new");
+    return { success: true };
+  } catch {
+    return { error: "Gagal menghapus kategori" };
   }
 }
