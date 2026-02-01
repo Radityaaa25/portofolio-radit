@@ -20,8 +20,8 @@ const FooterSection = () => {
 
   const socialLinks = [
     { icon: Github, href: "https://github.com/radityaaa25", label: "Github" },
-    { icon: Linkedin, href: "https://linkedin.com/in/radityaaa", label: "LinkedIn" },
-    { icon: Instagram, href: "https://instagram.com/radityaaa", label: "Instagram" },
+    { icon: Linkedin, href: "www.linkedin.com/in/raditya-ananda-satria-bb1bb7372", label: "LinkedIn" },
+    { icon: Instagram, href: "https://instagram.com/rdityaas", label: "Instagram" },
   ];
 
   return (
@@ -35,7 +35,7 @@ const FooterSection = () => {
             <div className="space-y-4">
                 {/* FIX: Ganti bg-gradient-to-r jadi bg-linear-to-r */}
                 <h3 className="text-2xl font-bold bg-linear-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                    Raditya A.S.
+                    Raditya A.S
                 </h3>
                 
                 <div className="text-muted-foreground flex flex-col md:flex-row items-center md:items-start gap-2 justify-center md:justify-start">

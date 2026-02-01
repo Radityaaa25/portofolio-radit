@@ -4,9 +4,10 @@ import { motion } from "framer-motion";
 import { Mail, MapPin, Send, Github, Instagram, ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
+import { toast } from "sonner"; 
 
 const ContactSection = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage(); 
   const [formState, setFormState] = useState({
     name: "",
     email: "",
@@ -18,14 +19,14 @@ const ContactSection = () => {
     {
       icon: <Mail className="w-6 h-6" />,
       label: "Email",
-      value: "radityasatria@gmail.com",
-      href: "mailto:radityasatria@gmail.com",
+      value: "radityaanandasatria@gmail.com",
+      href: "mailto:radityaanandasatria@gmail.com",
     },
     {
       icon: <Instagram className="w-6 h-6" />,
       label: "Instagram",
-      value: "@radityaaa25",
-      href: "https://instagram.com/radityaaa25",
+      value: "@rdityaas",
+      href: "https://instagram.com/rdityaas",
     },
     {
       icon: <Github className="w-6 h-6" />,
@@ -37,17 +38,50 @@ const ContactSection = () => {
       icon: <MapPin className="w-6 h-6" />,
       label: "Location",
       value: "Jakarta, Indonesia",
-      href: "https://maps.google.com/?q=Cipinang+Bali,+Jakarta+Timur",
+      href: "https://maps.google.com/?q=Jakarta,Indonesia",
     },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
-    setFormState({ name: "", email: "", message: "" });
-    alert(t("contact.successMessage"));
+
+    // --- LOGIC KIRIM EMAIL (WEB3FORMS) ---
+    const formData = new FormData();
+    
+    formData.append("access_key", "59290b77-fc5f-47ed-8db3-a69f7cfa0c18"); 
+    
+    formData.append("name", formState.name);
+    formData.append("email", formState.email);
+    formData.append("message", formState.message);
+    formData.append("subject", `Pesan Baru dari Portofolio: ${formState.name}`); 
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setFormState({ name: "", email: "", message: "" });
+        
+        if (typeof toast !== "undefined") {
+            toast.success(language === 'id' ? "Pesan berhasil terkirim!" : "Message sent successfully!");
+        } else {
+            alert(language === 'id' ? "Pesan berhasil terkirim!" : "Message sent successfully!");
+        }
+      } else {
+        console.error("Error Web3Forms:", result);
+        alert(language === 'id' ? "Gagal mengirim pesan." : "Failed to send message.");
+      }
+    } catch (error) {
+      console.error("Error Network:", error);
+      alert("Terjadi kesalahan jaringan.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -119,7 +153,6 @@ const ContactSection = () => {
             transition={{ duration: 0.6 }}
             className="h-full" 
           >
-            {/* PERBAIKAN: Mengganti 'space-y-6' dengan 'gap-6' agar jarak antar elemen lebih konsisten */}
             <form onSubmit={handleSubmit} className="glass p-8 rounded-3xl h-full flex flex-col gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium ml-1">
@@ -149,7 +182,6 @@ const ContactSection = () => {
                 />
               </div>
 
-              {/* Flex Grow: Mengisi sisa ruang */}
               <div className="space-y-2 grow flex flex-col"> 
                 <label className="text-sm font-medium ml-1">
                   {t("contact.message")}
@@ -158,14 +190,12 @@ const ContactSection = () => {
                   required
                   rows={4}
                   placeholder={t("contact.messagePlaceholder")}
-                  // PERBAIKAN: Menghapus h-full dan membiarkan flex-grow di parent yang mengatur tinggi
                   className="w-full px-4 py-3 rounded-xl bg-background/50 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none grow min-h-30"
                   value={formState.message}
                   onChange={(e) => setFormState({ ...formState, message: e.target.value })}
                 />
               </div>
 
-              {/* Tombol Send: mt-auto memastikan dia di bawah, tapi gap-6 akan menjaga jarak minimal */}
               <button
                 type="submit"
                 disabled={isSubmitting}
