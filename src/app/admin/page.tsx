@@ -19,11 +19,21 @@ import Image from "next/image"; // FIX: Import Image
 export const dynamic = "force-dynamic";
 
 function getGreeting() {
-  const hour = new Date().getHours();
-  if (hour < 11) return "Selamat Pagi";
-  if (hour < 15) return "Selamat Siang";
-  if (hour < 19) return "Selamat Sore";
-  return "Selamat Malam";
+  // Ambil waktu saat ini dengan zona waktu Jakarta
+  const date = new Date();
+  const hour = parseInt(
+    new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      hour12: false,
+      timeZone: "Asia/Jakarta",
+    }).format(date)
+  );
+
+  if (hour < 4) return "Selamat Malam"; // 00 - 04
+  if (hour < 11) return "Selamat Pagi"; // 04 - 11
+  if (hour < 15) return "Selamat Siang"; // 11 - 15
+  if (hour < 18) return "Selamat Sore"; // 15 - 18
+  return "Selamat Malam"; // 18 - 24
 }
 
 const quotes = [
