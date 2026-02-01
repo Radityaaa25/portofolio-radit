@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb', // Kita set jadi 10MB (Default cuma 1MB)
+    },
+  },
   images: {
     // FIX: Menggunakan remotePatterns (Pengganti domains yang deprecated)
     remotePatterns: [
