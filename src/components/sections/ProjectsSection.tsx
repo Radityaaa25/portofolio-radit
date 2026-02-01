@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ExternalLink, Github, X, Eye } from "lucide-react"; // Loader2 dihapus
+import { ExternalLink, Github, X, Eye, Maximize2 } from "lucide-react"; // Ditambah Maximize2
 import Image from "next/image";
 import { useState } from "react"; 
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -48,8 +48,11 @@ const ProjectsSection = ({ projects, categories }: ProjectsSectionProps) => {
   const { t, language } = useLanguage();
   const [activeCategory, setActiveCategory] = useState("All");
   
-  // State Popup
+  // State Popup Detail Project
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
+  // State Popup Preview Image Full (BARU ✨)
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const filteredProjects = activeCategory === "All"
     ? projects
@@ -119,7 +122,21 @@ const ProjectsSection = ({ projects, categories }: ProjectsSectionProps) => {
                     )}
                     
                     {/* HOVER OVERLAY (BUTTONS) */}
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3 backdrop-blur-[2px]">
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3 backdrop-blur-[2px] p-4 text-center">
+                      
+                      {/* 1. BUTTON PREVIEW IMAGE (BARU ✨) */}
+                      {project.imageUrl && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation(); // Biar gak kebuka detail card-nya
+                            setPreviewImage(project.imageUrl);
+                          }}
+                          className="flex items-center gap-2 px-6 py-2 bg-white/10 text-white font-medium rounded-full border border-white/20 hover:scale-105 transition-transform hover:bg-white/30 backdrop-blur-md mb-1"
+                        >
+                          <Maximize2 className="w-4 h-4" />
+                          <span>{language === 'id' ? "Lihat Gambar" : "View Image"}</span>
+                        </button>
+                      )}
                       
                       {project.demoUrl && (
                         <a 
@@ -130,7 +147,7 @@ const ProjectsSection = ({ projects, categories }: ProjectsSectionProps) => {
                           className="flex items-center gap-2 px-6 py-2 bg-white text-black font-bold rounded-full hover:scale-105 transition-transform shadow-lg"
                         >
                           <ExternalLink className="w-4 h-4" />
-                          <span>{language === 'id' ? "Lihat Project" : "View Project"}</span>
+                          <span>{language === 'id' ? "Kunjungi Link" : "Visit Link"}</span>
                         </a>
                       )}
 
@@ -175,19 +192,16 @@ const ProjectsSection = ({ projects, categories }: ProjectsSectionProps) => {
         )}
 
         {/* ========================================================= */}
-        {/* POP-UP: FRAMER MOTION CENTER POP (NO SLIDE) */}
+        {/* POP-UP 1: FRAMER MOTION CENTER POP (DETAIL PROJECT) */}
         {/* ========================================================= */}
         <Dialog open={!!selectedProject} onOpenChange={(open) => !open && setSelectedProject(null)}>
-          {/* FIX: animate-none! (tanda seru di belakang) sesuai saran Tailwind */}
           <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl p-0 border-none bg-transparent shadow-none animate-none!">
-            
             <motion.div 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} 
               className="bg-background border border-border shadow-2xl sm:rounded-2xl overflow-hidden flex flex-col max-h-[85vh]"
             >
-              
               {/* 1. Header Image */}
               <div className="relative w-full aspect-video bg-secondary shrink-0 group">
                 {selectedProject?.imageUrl ? (
@@ -274,6 +288,33 @@ const ProjectsSection = ({ projects, categories }: ProjectsSectionProps) => {
               </div>
 
             </motion.div>
+          </DialogContent>
+        </Dialog>
+
+        {/* ========================================================= */}
+        {/* POP-UP 2: FULL IMAGE PREVIEW (BARU ✨) */}
+        {/* ========================================================= */}
+        <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
+          <DialogContent className="max-w-[95vw] max-h-[95vh] w-auto h-auto p-0 bg-transparent border-none shadow-none flex items-center justify-center animate-none!">
+             {previewImage && (
+                <div className="relative w-auto h-auto flex items-center justify-center">
+                   {/* Tombol Close Besar di Luar Gambar */}
+                   <button 
+                      onClick={() => setPreviewImage(null)}
+                      className="absolute -top-12 right-0 md:-right-12 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-all z-50 cursor-pointer"
+                   >
+                      <X className="w-6 h-6" />
+                   </button>
+                   
+                   <Image 
+                      src={previewImage} 
+                      alt="Full Preview" 
+                      width={1920} 
+                      height={1080} 
+                      className="object-contain max-h-[85vh] w-auto rounded-lg shadow-2xl border border-white/10"
+                   />
+                </div>
+             )}
           </DialogContent>
         </Dialog>
 
