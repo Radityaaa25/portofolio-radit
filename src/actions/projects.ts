@@ -1,7 +1,6 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 
@@ -48,22 +47,9 @@ export async function createProject(prevState: ActionResponse, formData: FormDat
     const demoUrl = formData.get("demoUrl") as string;
     const repoUrl = formData.get("repoUrl") as string;
     const categoryId = formData.get("categoryId") as string;
-    const imageFile = formData.get("image") as File;
-
-    let imageUrl = ""; 
-
-    if (imageFile && imageFile.size > 0) {
-      const fileName = `project-${Date.now()}-${imageFile.name.replaceAll(" ", "-")}`;
-      
-      const { error } = await supabase.storage
-        .from("portofolio") 
-        .upload(fileName, imageFile, { upsert: false });
-      
-      if (error) throw new Error("Gagal upload gambar: " + error.message);
-      
-      const { data } = supabase.storage.from("portofolio").getPublicUrl(fileName);
-      imageUrl = data.publicUrl;
-    }
+    
+    // PERUBAHAN DI SINI: Kita ambil URL string, bukan File object
+    const imageUrl = formData.get("imageUrl") as string; 
 
     await prisma.project.create({
       data: {
@@ -71,7 +57,7 @@ export async function createProject(prevState: ActionResponse, formData: FormDat
         descriptionId,
         descriptionEn,
         techStack,     
-        imageUrl,      
+        imageUrl, // URL sudah dikirim dari frontend     
         demoUrl,       
         repoUrl,       
         categoryId,
@@ -103,7 +89,7 @@ export async function deleteProject(id: string): Promise<ActionResponse> {
 }
 
 // ==========================================
-// 3. CATEGORY WRITE FUNCTIONS (BARU! ✨)
+// 3. CATEGORY WRITE FUNCTIONS
 // ==========================================
 
 export async function createCategory(prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
@@ -114,7 +100,6 @@ export async function createCategory(prevState: ActionResponse, formData: FormDa
     const name = formData.get("name") as string;
     if (!name) return { error: "Nama kategori wajib diisi" };
 
-    // Cek duplikat
     const existing = await prisma.category.findUnique({ where: { name } });
     if (existing) return { error: "Kategori sudah ada!" };
 
@@ -134,7 +119,6 @@ export async function deleteCategory(id: string): Promise<ActionResponse> {
   if (!session) return { error: "Unauthorized" };
 
   try {
-    // Cek apakah kategori dipakai project?
     const count = await prisma.project.count({ where: { categoryId: id } });
     if (count > 0) return { error: "Gagal: Masih ada project di kategori ini!" };
 
