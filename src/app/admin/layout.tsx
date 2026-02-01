@@ -2,75 +2,55 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import { 
   LayoutDashboard, 
   Briefcase, 
   FileText, 
   LogOut, 
-  Menu, 
-  X, 
-  User 
+  User,
+  GraduationCap, // Icon Experience (Topi Wisuda)
+  Languages      // Icon Bahasa (Huruf)
 } from "lucide-react";
-import { useState } from "react";
 import { signOut } from "next-auth/react";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // --- LOGIC BARU: CEK HALAMAN LOGIN ---
-  // Jika URL adalah "/admin/login", kita return children saja (Login Page Full)
-  // Sidebar dan Header TIDAK AKAN DITAMPILKAN
-  if (pathname === "/admin/login") {
-    return <>{children}</>;
-  }
-  // --------------------------------------
-
+  // DAFTAR MENU ADMIN (Pastikan Experience & Languages ada di sini)
   const menuItems = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { name: "Projects", href: "/admin/projects", icon: Briefcase },
+    { name: "Experiences", href: "/admin/experiences", icon: GraduationCap }, // <--- MENU BARU
     { name: "Certificates", href: "/admin/certificates", icon: FileText },
-    { name: "Profile & SEO", href: "/admin/profile", icon: User },
+    { name: "Languages", href: "/admin/languages", icon: Languages },         // <--- MENU BARU
+    { name: "Profile", href: "/admin/profile", icon: User },
   ];
 
   return (
-    <div className="min-h-screen bg-secondary/20 flex flex-col md:flex-row">
-      
-      {/* MOBILE HEADER (Hanya muncul di HP) */}
-      <div className="md:hidden bg-background border-b border-border p-4 flex items-center justify-between sticky top-0 z-50">
-        <span className="font-bold text-lg">Admin Panel</span>
-        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-secondary rounded-lg">
-          {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-      </div>
-
-      {/* SIDEBAR NAVIGATION */}
-      <aside className={`
-        fixed inset-y-0 left-0 z-40 w-64 bg-background border-r border-border transform transition-transform duration-200 ease-in-out
-        md:translate-x-0 md:h-screen md:sticky md:top-0
-        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-      `}>
-        <div className="p-6 border-b border-border flex items-center justify-between">
-          <h2 className="text-2xl font-bold bg-linear-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-            Raditya.
-          </h2>
-          <button onClick={() => setIsSidebarOpen(false)} className="md:hidden p-1">
-            <X className="w-5 h-5 text-muted-foreground" />
-          </button>
+    <div className="min-h-screen flex bg-background">
+      {/* Sidebar Desktop */}
+      <aside className="w-64 border-r border-border bg-card hidden md:block fixed h-full z-50">
+        <div className="p-6">
+          <h2 className="text-2xl font-bold gradient-text mb-2">Admin Panel</h2>
+          <p className="text-xs text-muted-foreground">Manage your portfolio</p>
         </div>
-
-        <nav className="p-4 space-y-2">
+        
+        <nav className="px-4 space-y-2 mt-4">
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setIsSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "hover:bg-secondary text-muted-foreground hover:text-foreground"
+                    ? "bg-primary text-primary-foreground font-medium shadow-md"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                 }`}
               >
                 <item.icon className="w-5 h-5" />
@@ -80,29 +60,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        <div className="absolute bottom-0 w-full p-4 border-t border-border">
-          <button 
-            onClick={() => signOut({ callbackUrl: "/admin/login" })}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl w-full text-left text-red-500 hover:bg-red-500/10 transition-colors font-medium"
+        <div className="absolute bottom-6 left-0 w-full px-4">
+          <Button
+            variant="outline"
+            className="w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
+            onClick={() => signOut({ callbackUrl: "/" })}
           >
             <LogOut className="w-5 h-5" />
             Logout
-          </button>
+          </Button>
         </div>
       </aside>
 
-      {/* OVERLAY MOBILE */}
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
-      {/* MAIN CONTENT AREA */}
-      <main className="flex-1 p-4 md:p-8 overflow-x-hidden w-full">
+      {/* Main Content Area */}
+      <main className="flex-1 md:ml-64 p-4 md:p-8 min-h-screen pb-20 md:pb-8">
         {children}
       </main>
+
+      {/* Note: Kalau tampilan mobile belum ada, biasanya pakai Sheet/Drawer. 
+          Tapi untuk Admin biasanya diakses di Desktop biar enak. */}
     </div>
   );
 }

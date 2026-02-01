@@ -107,3 +107,15 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// 7. Model Language Skill (Untuk di About Me)
+model LanguageSkill {
+  id        String   @id @default(cuid())
+  language  String   // Nama Bahasa (Indonesia, English)
+  levelId   String   // Tingkat (Aktif, Pasif) - Bahasa Indonesia
+  levelEn   String   // Level (Active, Passive) - English
+  flag      String   // Emoji Bendera (🇮🇩, 🇬🇧)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -5,10 +5,9 @@ import { motion, useMotionTemplate, useMotionValue, useSpring } from "framer-mot
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Code, Palette, Terminal, Layout, Database, Smartphone, Download } from "lucide-react";
 import Image from "next/image";
-import { Profile } from "@prisma/client";
+import { Profile, LanguageSkill } from "@prisma/client"; // Import Tipe Data
 
 // --- KOMPONEN KARTU FOTO ---
-// FIX: Terima props profile agar foto dan teksnya dinamis
 const ProfileCard = ({ profile, language }: { profile?: Profile | null, language: string }) => {
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -42,7 +41,6 @@ const ProfileCard = ({ profile, language }: { profile?: Profile | null, language
     y.set(0);
   };
 
-  // Logic pilih Nama & Role
   const displayName = profile?.name || "Raditya A.S.";
   const displayRole = language === 'id' 
     ? (profile?.roleId || "Fullstack Developer") 
@@ -57,7 +55,7 @@ const ProfileCard = ({ profile, language }: { profile?: Profile | null, language
         transformStyle: "preserve-3d",
         transform,
       }}
-      className="relative w-full h-auto rounded-2xl bg-linear-to-br from-primary/30 to-accent/30 p-0.5 group"
+      className="relative w-full h-auto rounded-2xl bg-gradient-to-br from-primary/30 to-accent/30 p-0.5 group"
     >
       <div
         style={{ transform: "translateZ(0px)" }}
@@ -68,7 +66,6 @@ const ProfileCard = ({ profile, language }: { profile?: Profile | null, language
         style={{ transform: "translateZ(50px)" }}
         className="relative h-auto w-full rounded-2xl bg-black/80 backdrop-blur-xl border border-white/10 overflow-hidden"
       >
-        {/* FIX: Ambil FOTO dari DATABASE (profile.photoUrl) */}
         <Image
           src={profile?.photoUrl || "/foto.jpg"} 
           alt={displayName}
@@ -78,14 +75,12 @@ const ProfileCard = ({ profile, language }: { profile?: Profile | null, language
           priority 
         />
         
-        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-transparent to-transparent opacity-50 group-hover:opacity-70 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-50 group-hover:opacity-70 transition-opacity duration-500" />
 
         <div className="absolute bottom-4 left-4 text-left">
-          {/* FIX: Ambil NAMA dari DATABASE */}
           <h3 className="text-xl font-bold text-white mb-1 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
             {displayName}
           </h3>
-          {/* FIX: Ambil ROLE dari DATABASE */}
           <p className="text-primary font-medium text-sm translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">
             {displayRole}
           </p>
@@ -98,12 +93,12 @@ const ProfileCard = ({ profile, language }: { profile?: Profile | null, language
 // --- ABOUT SECTION UTAMA ---
 interface AboutSectionProps {
   profile?: Profile | null;
+  languages: LanguageSkill[]; // Tambah Props Languages
 }
 
-const AboutSection = ({ profile }: AboutSectionProps) => {
+const AboutSection = ({ profile, languages = [] }: AboutSectionProps) => {
   const { t, language } = useLanguage();
 
-  // Logic pilih teks About Me (Dari DB vs Default)
   const aboutText = language === 'id' 
     ? (profile?.aboutId) 
     : (profile?.aboutEn);
@@ -166,7 +161,6 @@ const AboutSection = ({ profile }: AboutSectionProps) => {
             
             {/* Kolom Foto */}
             <div className="md:col-span-4 lg:col-span-4">
-              {/* FIX: Kirim data profile ke komponen kartu */}
               <ProfileCard profile={profile} language={language} />
             </div>
 
@@ -178,7 +172,6 @@ const AboutSection = ({ profile }: AboutSectionProps) => {
                   {t("about.myStory")}
                 </h3>
                 <div className="prose dark:prose-invert text-muted-foreground leading-relaxed text-justify text-lg whitespace-pre-line">
-                  {/* FIX: Tampilkan teks dari Database jika ada. Jika tidak, pakai default t() */}
                   {aboutText ? (
                     <p>{aboutText}</p>
                   ) : (
@@ -191,23 +184,28 @@ const AboutSection = ({ profile }: AboutSectionProps) => {
                 </div>
               </div>
 
-              {/* Languages */}
+              {/* Languages Dinamis dari DB */}
               <div className="pt-6 border-t border-white/5">
                 <h4 className="text-sm font-semibold mb-3 text-foreground">{t("about.languageSkills")}</h4>
                 <div className="flex flex-wrap gap-3">
-                  <span className="px-3 py-1 bg-secondary rounded-full text-xs font-medium flex items-center gap-1">
-                    🇮🇩 {t("about.indonesian")} <span className="text-muted-foreground">({t("about.active")})</span>
-                  </span>
-                  <span className="px-3 py-1 bg-secondary rounded-full text-xs font-medium flex items-center gap-1">
-                    🇬🇧 {t("about.english")} <span className="text-muted-foreground">({t("about.passive")})</span>
-                  </span>
-                  <span className="px-3 py-1 bg-secondary rounded-full text-xs font-medium flex items-center gap-1">
-                    🇰🇷 {t("about.korean")} <span className="text-muted-foreground">({t("about.passive")})</span>
-                  </span>
+                  {languages.length > 0 ? (
+                    languages.map((lang) => (
+                      <span key={lang.id} className="px-3 py-1 bg-secondary rounded-full text-xs font-medium flex items-center gap-1">
+                        {lang.flag} {lang.language} 
+                        <span className="text-muted-foreground">
+                          ({language === "id" ? lang.levelId : lang.levelEn})
+                        </span>
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-muted-foreground text-xs italic">
+                      {language === "id" ? "Belum ada data bahasa." : "No language data available."}
+                    </span>
+                  )}
                 </div>
               </div>
 
-              {/* Download CV Button (SUDAH DINAMIS DARI DB) */}
+              {/* Download CV Button */}
               {profile?.cvUrl && (
                 <motion.a 
                   href={profile.cvUrl} 
@@ -224,7 +222,7 @@ const AboutSection = ({ profile }: AboutSectionProps) => {
             </div>
           </div>
 
-          {/* BAGIAN BAWAH: Skills */}
+          {/* BAGIAN BAWAH: Skills (Tech Stack) */}
           <div>
             <h3 className="text-2xl font-bold mb-8 flex items-center justify-center gap-2">
               <span className="w-8 h-1 bg-accent rounded-full"></span>

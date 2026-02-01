@@ -42,13 +42,18 @@ export default function Home() {
           <FloatingNavbar />
           <ThemeLanguageToggle />
           
-          {/* Kirim Data Profile ke Hero (PENTING) */}
+          {/* Kirim Data Profile ke Hero */}
           <HeroSection profile={data?.profile || null} />
           
-          {/* Kirim Data Profile ke About */}
-          <AboutSection profile={data?.profile || null} />
+          {/* UPDATE: Kirim Data Profile DAN Languages ke About */}
+          <AboutSection 
+            profile={data?.profile || null} 
+            languages={data?.languages || []} 
+          />
           
+          {/* UPDATE: Kirim Data Experiences */}
           <ExperienceSection experiences={data?.experiences || []} />
+          
           <ProjectsSection projects={data?.projects || []} categories={data?.categories || []} />
           <ToolsSection />
           <CertificatesSection />

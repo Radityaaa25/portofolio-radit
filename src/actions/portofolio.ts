@@ -1,18 +1,19 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { Category, Experience, Profile, Project } from "@prisma/client";
+import { Category, Experience, Profile, Project, LanguageSkill } from "@prisma/client";
 
 export type PortfolioData = {
   profile: Profile | null;
   categories: Category[];
   projects: (Project & { category: Category })[];
   experiences: Experience[];
+  languages: LanguageSkill[]; // <--- TAMBAHAN BARU
 };
 
 export async function getPortfolioData(): Promise<PortfolioData> {
   try {
-    const [profile, categories, projects, experiences] = await Promise.all([
+    const [profile, categories, projects, experiences, languages] = await Promise.all([
       prisma.profile.findFirst(),
       prisma.category.findMany(),
       prisma.project.findMany({
@@ -20,7 +21,10 @@ export async function getPortfolioData(): Promise<PortfolioData> {
         orderBy: { createdAt: "desc" },
       }),
       prisma.experience.findMany({
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: "desc" }, // atau bisa diset manual urutannya
+      }),
+      prisma.languageSkill.findMany({
+        orderBy: { createdAt: "asc" },
       }),
     ]);
 
@@ -29,6 +33,7 @@ export async function getPortfolioData(): Promise<PortfolioData> {
       categories,
       projects,
       experiences,
+      languages, // <--- TAMBAHAN BARU
     };
   } catch (error) {
     console.error("Gagal mengambil data portfolio:", error);
@@ -37,6 +42,7 @@ export async function getPortfolioData(): Promise<PortfolioData> {
       categories: [],
       projects: [],
       experiences: [],
+      languages: [], // <--- TAMBAHAN BARU
     };
   }
 }
