@@ -9,8 +9,8 @@ import {
   FileText, 
   LogOut, 
   User,
-  GraduationCap, // Icon Experience (Topi Wisuda)
-  Languages      // Icon Bahasa (Huruf)
+  GraduationCap, 
+  Languages 
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
@@ -21,13 +21,23 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
 
-  // DAFTAR MENU ADMIN (Pastikan Experience & Languages ada di sini)
+  // 🔥 LOGIC BARU: Cek apakah sedang di halaman Login?
+  // Jika YA, tampilkan halaman polos tanpa Sidebar
+  if (pathname === "/admin/login") {
+    return (
+      <div className="min-h-screen bg-background w-full">
+        {children}
+      </div>
+    );
+  }
+
+  // DAFTAR MENU ADMIN (Hanya muncul kalau BUKAN halaman login)
   const menuItems = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { name: "Projects", href: "/admin/projects", icon: Briefcase },
-    { name: "Experiences", href: "/admin/experiences", icon: GraduationCap }, // <--- MENU BARU
+    { name: "Experiences", href: "/admin/experiences", icon: GraduationCap },
     { name: "Certificates", href: "/admin/certificates", icon: FileText },
-    { name: "Languages", href: "/admin/languages", icon: Languages },         // <--- MENU BARU
+    { name: "Languages", href: "/admin/languages", icon: Languages },
     { name: "Profile", href: "/admin/profile", icon: User },
   ];
 
@@ -76,9 +86,6 @@ export default function AdminLayout({
       <main className="flex-1 md:ml-64 p-4 md:p-8 min-h-screen pb-20 md:pb-8">
         {children}
       </main>
-
-      {/* Note: Kalau tampilan mobile belum ada, biasanya pakai Sheet/Drawer. 
-          Tapi untuk Admin biasanya diakses di Desktop biar enak. */}
     </div>
   );
 }
