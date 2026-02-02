@@ -1,8 +1,9 @@
 import Link from "next/link";
-import prisma from "@/lib/prisma"; // HAPUS KURUNG KURAWAL {}
+import prisma from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Pencil } from "lucide-react";
 import { deleteLanguage } from "@/actions/languages";
+import DeleteButton from "@/components/admin/DeleteButton"; // Import ini
 
 export default async function LanguagesPage() {
   const languages = await prisma.languageSkill.findMany({
@@ -21,32 +22,56 @@ export default async function LanguagesPage() {
       </div>
 
       <div className="bg-card rounded-xl border border-border overflow-hidden">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-secondary/50 border-b border-border">
-            <tr>
-              <th className="p-4">Flag</th>
-              <th className="p-4">Language</th>
-              <th className="p-4">Level</th>
-              <th className="p-4 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {languages.map((lang) => (
-              <tr key={lang.id} className="hover:bg-secondary/20 transition-colors">
-                <td className="p-4 text-xl">{lang.flag}</td>
-                <td className="p-4 font-medium">{lang.language}</td>
-                <td className="p-4">{lang.levelEn} / {lang.levelId}</td>
-                <td className="p-4 text-right">
-                  <form action={deleteLanguage.bind(null, lang.id)}>
-                    <Button variant="destructive" size="sm" type="submit">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </form>
-                </td>
+        {/* Kasih wrapper responsive juga biar konsisten */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm min-w-150">
+            <thead className="bg-secondary/50 border-b border-border">
+              <tr>
+                <th className="p-4">Language</th>
+                <th className="p-4">Flag</th>
+                <th className="p-4">Level</th>
+                <th className="p-4 text-right">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {languages.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="p-12 text-center text-muted-foreground">
+                    Belum ada data bahasa.
+                  </td>
+                </tr>
+              ) : (
+                languages.map((lang) => (
+                  <tr key={lang.id} className="hover:bg-secondary/20 transition-colors">
+                    <td className="p-4 font-medium">{lang.language}</td>
+                    <td className="p-4 text-2xl">{lang.flag}</td>
+                    <td className="p-4">
+                      <div className="font-medium">{lang.levelEn}</div>
+                      <div className="text-xs text-muted-foreground">{lang.levelId}</div>
+                    </td>
+                    <td className="p-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        {/* Tombol Edit */}
+                        <Link href={`/admin/languages/${lang.id}/edit`}>
+                          <Button variant="outline" size="sm">
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                        </Link>
+                        
+                        {/* GANTI FORM DELETE BIASA JADI DELETEBUTTON POPUP */}
+                        <DeleteButton 
+                          id={lang.id} 
+                          action={deleteLanguage} 
+                          variant="destructive"
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
