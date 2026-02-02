@@ -18,7 +18,9 @@ export default async function EditCertificatePage({ params }: { params: Promise<
         </Link>
         <h1 className="text-3xl font-bold">Edit Sertifikat</h1>
       </div>
-      <CertificateForm data={cert} />
+      
+      {/* PENTING: Kirim props sebagai initialData */}
+      <CertificateForm initialData={cert} />
     </div>
   );
 }

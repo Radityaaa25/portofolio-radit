@@ -1,4 +1,4 @@
-import ExperienceForm from "@/components/admin/ExperiencesForm";
+import ExperienceForm from "@/components/admin/ExperiencesForm"; // Pastikan path benar
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -19,7 +19,9 @@ export default async function EditExperiencePage({ params }: { params: Promise<{
         </Button>
         <h1 className="text-2xl font-bold">Edit Experience</h1>
       </div>
-      <ExperienceForm experience={experience} />
+      
+      {/* PENTING: Kirim props sebagai initialData */}
+      <ExperienceForm initialData={experience} />
     </div>
   );
 }

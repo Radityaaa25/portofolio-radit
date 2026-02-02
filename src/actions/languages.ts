@@ -2,47 +2,53 @@
 
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-
-// Standarisasi Return Type
-type ActionResponse = { success?: boolean; error?: string };
 
 export async function createLanguage(formData: FormData) {
-  const language = formData.get("language") as string;
-  const levelId = formData.get("levelId") as string;
-  const levelEn = formData.get("levelEn") as string;
-  const flag = formData.get("flag") as string;
+  try {
+    const language = formData.get("language") as string;
+    const levelId = formData.get("levelId") as string;
+    const levelEn = formData.get("levelEn") as string;
+    const flag = formData.get("flag") as string;
 
-  await prisma.languageSkill.create({
-    data: { language, levelId, levelEn, flag },
-  });
+    await prisma.languageSkill.create({
+      data: { language, levelId, levelEn, flag },
+    });
 
-  revalidatePath("/admin/languages");
-  redirect("/admin/languages");
+    revalidatePath("/admin/languages");
+    return { success: true };
+  } catch (error) {
+    console.error("Create Language Error:", error); // FIX: Gunakan variabel error
+    return { error: "Gagal menyimpan bahasa." };
+  }
 }
 
 export async function updateLanguage(id: string, formData: FormData) {
-  const language = formData.get("language") as string;
-  const levelId = formData.get("levelId") as string;
-  const levelEn = formData.get("levelEn") as string;
-  const flag = formData.get("flag") as string;
+  try {
+    const language = formData.get("language") as string;
+    const levelId = formData.get("levelId") as string;
+    const levelEn = formData.get("levelEn") as string;
+    const flag = formData.get("flag") as string;
 
-  await prisma.languageSkill.update({
-    where: { id },
-    data: { language, levelId, levelEn, flag },
-  });
+    await prisma.languageSkill.update({
+      where: { id },
+      data: { language, levelId, levelEn, flag },
+    });
 
-  revalidatePath("/admin/languages");
-  redirect("/admin/languages");
+    revalidatePath("/admin/languages");
+    return { success: true };
+  } catch (error) {
+    console.error("Update Language Error:", error); // FIX: Gunakan variabel error
+    return { error: "Gagal update bahasa." };
+  }
 }
 
-export async function deleteLanguage(id: string): Promise<ActionResponse> {
+export async function deleteLanguage(id: string) {
   try {
     await prisma.languageSkill.delete({ where: { id } });
     revalidatePath("/admin/languages");
     return { success: true };
   } catch (error) {
-    console.error(error);
-    return { error: "Gagal menghapus bahasa" };
+    console.error("Delete Language Error:", error); // FIX: Gunakan variabel error
+    return { error: "Gagal menghapus bahasa." };
   }
 }
