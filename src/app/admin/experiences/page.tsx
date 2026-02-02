@@ -25,7 +25,7 @@ export default async function ExperiencesPage() {
         {/* WRAPPER SCROLL: Supaya tabel bisa digeser di HP */}
         <div className="overflow-x-auto">
           {/* MIN-WIDTH: Supaya tabel tidak gepeng */}
-          <table className="w-full text-left text-sm min-w-[800px]">
+          <table className="w-full text-left text-sm min-w-200">
             <thead className="bg-secondary/50 border-b border-border">
               <tr>
                 <th className="p-4">Role / Position</th>

@@ -23,7 +23,7 @@ export default async function AdminCertificatesPage() {
       <div className="bg-background border border-border rounded-xl shadow-sm overflow-hidden">
         {/* WRAPPER SCROLL */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm min-w-[800px]">
+          <table className="w-full text-left text-sm min-w-200">
             <thead className="bg-secondary/50 border-b border-border">
               <tr>
                 <th className="p-4 font-semibold">Preview</th>
