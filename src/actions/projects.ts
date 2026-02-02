@@ -131,3 +131,55 @@ export async function deleteCategory(id: string): Promise<ActionResponse> {
     return { error: "Gagal menghapus kategori" };
   }
 }
+
+// ... (Kode sebelumnya biarkan saja)
+
+// ==========================================
+// 4. UPDATE PROJECT FUNCTION (BARU ✨)
+// ==========================================
+
+export async function updateProject(id: string, prevState: ActionResponse, formData: FormData): Promise<ActionResponse> {
+  const session = await auth();
+  if (!session) return { error: "Unauthorized" };
+
+  try {
+    const title = formData.get("title") as string;
+    const descriptionId = formData.get("descriptionId") as string;
+    const descriptionEn = formData.get("descriptionEn") as string;
+    
+    const techStackString = formData.get("techStack") as string;
+    const techStack = techStackString.split(",").map((t) => t.trim()).filter(t => t);
+
+    const demoUrl = formData.get("demoUrl") as string;
+    const repoUrl = formData.get("repoUrl") as string;
+    const categoryId = formData.get("categoryId") as string;
+    
+    // Cek apakah ada gambar baru yang dikirim?
+    // ProjectForm nanti akan mengirim string URL jika tidak ada perubahan,
+    // ATAU mengirim URL baru jika ada upload di client side.
+    const imageUrl = formData.get("imageUrl") as string; 
+
+    await prisma.project.update({
+      where: { id },
+      data: {
+        title,
+        descriptionId,
+        descriptionEn,
+        techStack,     
+        imageUrl, // Update URL gambar
+        demoUrl,       
+        repoUrl,       
+        categoryId,
+      },
+    });
+
+    revalidatePath("/");
+    revalidatePath("/admin/projects");
+    return { success: true };
+
+  } catch (error) {
+    console.error("Error updating project:", error);
+    const message = error instanceof Error ? error.message : "Gagal update project";
+    return { error: message };
+  }
+}
