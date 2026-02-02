@@ -74,3 +74,45 @@ export async function deleteCertificate(id: string): Promise<ActionResponse> {
     return { error: "Gagal menghapus sertifikat" };
   }
 }
+
+// ... (Kode lama biarkan)
+
+export async function updateCertificate(id: string, formData: FormData) {
+  const session = await auth();
+  if (!session) return { error: "Unauthorized" };
+
+  try {
+    const title = formData.get("title") as string;
+    const issuer = formData.get("issuer") as string;
+    const issuedAtString = formData.get("issuedAt") as string;
+    const credentialUrl = formData.get("credentialUrl") as string;
+    const imageFile = formData.get("image") as File;
+    const imageUrl = formData.get("imageUrl") as string; // URL Lama
+
+    let finalImageUrl = imageUrl;
+
+    if (imageFile && imageFile.size > 0) {
+       const fileName = `cert-${Date.now()}-${imageFile.name.replaceAll(" ", "-")}`;
+       const { error } = await supabase.storage.from("portfolio").upload(fileName, imageFile, { upsert: false });
+       if (error) throw new Error(error.message);
+       const { data } = supabase.storage.from("portfolio").getPublicUrl(fileName);
+       finalImageUrl = data.publicUrl;
+    }
+
+    await prisma.certificate.update({
+      where: { id },
+      data: {
+        title, issuer, credentialUrl,
+        issuedAt: new Date(issuedAtString),
+        imageUrl: finalImageUrl,
+      }
+    });
+
+    revalidatePath("/admin/certificates");
+    return { success: true };
+  } catch (error) {
+    console.error(error); 
+    const message = error instanceof Error ? error.message : "Gagal update certificate";
+    return { error: message };
+  }
+}

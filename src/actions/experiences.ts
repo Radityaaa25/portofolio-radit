@@ -30,6 +30,31 @@ export async function createExperience(formData: FormData) {
 }
 
 export async function deleteExperience(id: string) {
-  await prisma.experience.delete({ where: { id } });
+  try {
+    await prisma.experience.delete({ where: { id } });
+    revalidatePath("/admin/experiences");
+    return { success: true }; // Return object, JANGAN REDIRECT
+  } catch (error) {
+    console.error("Delete error:", error)
+    return { error: "Gagal menghapus experience" };
+  }
+}
+
+export async function updateExperience(id: string, formData: FormData) {
+  // Tambahkan auth check manual jika perlu, atau asumsikan middleware sudah handle
+  const type = formData.get("type") as string;
+  const roleEn = formData.get("roleEn") as string;
+  const roleId = formData.get("roleId") as string;
+  const place = formData.get("place") as string;
+  const period = formData.get("period") as string;
+  const descriptionEn = formData.get("descriptionEn") as string;
+  const descriptionId = formData.get("descriptionId") as string;
+
+  await prisma.experience.update({
+    where: { id },
+    data: { type, roleEn, roleId, place, period, descriptionEn, descriptionId },
+  });
+
   revalidatePath("/admin/experiences");
+  redirect("/admin/experiences");
 }

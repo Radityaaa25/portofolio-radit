@@ -183,3 +183,18 @@ export async function updateProject(id: string, prevState: ActionResponse, formD
     return { error: message };
   }
 }
+
+export async function updateCategory(id: string, prevState: unknown, formData: FormData) {
+  const session = await auth();
+  if (!session) return { error: "Unauthorized" };
+  
+  try {
+    const name = formData.get("name") as string;
+    await prisma.category.update({ where: { id }, data: { name } });
+    revalidatePath("/admin/projects");
+    return { success: true };
+  } catch (error) { // Hapus unused error atau gunakan
+    console.error(error); 
+    return { error: "Gagal update kategori" };
+  }
+}
