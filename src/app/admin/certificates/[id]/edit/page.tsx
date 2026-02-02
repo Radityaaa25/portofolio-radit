@@ -1,4 +1,4 @@
-import CertificateForm from "@/components/admin/CertificateForm";
+import CertificateForm from "@/components/admin/CertificateForm"; // Import dari Form Utama
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import prisma from "@/lib/prisma";
@@ -19,7 +19,7 @@ export default async function EditCertificatePage({ params }: { params: Promise<
         <h1 className="text-3xl font-bold">Edit Sertifikat</h1>
       </div>
       
-      {/* PENTING: Kirim props sebagai initialData */}
+      {/* Kirim data sebagai initialData */}
       <CertificateForm initialData={cert} />
     </div>
   );
