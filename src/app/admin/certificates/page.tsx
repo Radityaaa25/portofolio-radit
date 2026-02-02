@@ -1,10 +1,10 @@
 import Link from "next/link";
 import prisma from "@/lib/prisma";
-import { Plus, ExternalLink, Pencil } from "lucide-react"; // Tambah Pencil
+import { Plus, ExternalLink, Pencil } from "lucide-react";
 import Image from "next/image";
 import { deleteCertificate } from "@/actions/certificates";
-import DeleteButton from "@/components/admin/DeleteButton"; // Import DeleteButton
-import { Button } from "@/components/ui/button"; // Pakai Button Shadcn biar konsisten
+import DeleteButton from "@/components/admin/DeleteButton";
+import { Button } from "@/components/ui/button";
 
 export default async function AdminCertificatesPage() {
   const certificates = await prisma.certificate.findMany({
@@ -21,30 +21,31 @@ export default async function AdminCertificatesPage() {
       </div>
 
       <div className="bg-background border border-border rounded-xl shadow-sm overflow-hidden">
-        <div className="w-full overflow-x-auto">
-          <table className="w-full text-left text-sm min-w-250">
+        {/* WRAPPER SCROLL */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm min-w-[800px]">
             <thead className="bg-secondary/50 border-b border-border">
               <tr>
-                <th className="p-4 font-semibold w-37.5">Preview</th>
-                <th className="p-4 font-semibold w-[30%]">Judul Sertifikat</th>
-                <th className="p-4 font-semibold w-[20%]">Penerbit</th>
-                <th className="p-4 font-semibold w-[15%]">Tanggal</th>
-                <th className="p-4 font-semibold text-right w-[15%]">Aksi</th>
+                <th className="p-4 font-semibold">Preview</th>
+                <th className="p-4 font-semibold">Judul Sertifikat</th>
+                <th className="p-4 font-semibold">Penerbit</th>
+                <th className="p-4 font-semibold">Tanggal</th>
+                <th className="p-4 font-semibold text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {certificates.length === 0 ? (
+                /* FIX JARAK: py-24 biar atas bawah lega banget */
                 <tr>
-                  <td colSpan={5} className="text-center py-16 text-muted-foreground">
-                    <p className="text-lg font-medium">Belum ada sertifikat.</p>
-                    <p className="text-sm mt-1 opacity-70">Data sertifikat akan muncul di sini.</p>
+                  <td colSpan={5} className="text-center py-24 text-muted-foreground">
+                    Belum ada sertifikat.
                   </td>
                 </tr>
               ) : (
                 certificates.map((cert) => (
                   <tr key={cert.id} className="hover:bg-secondary/20 transition-colors">
-                    <td className="p-4 align-middle">
-                      <div className="w-24 h-16 relative bg-secondary rounded-md overflow-hidden border border-border">
+                    <td className="p-4">
+                      <div className="w-20 h-14 relative bg-secondary rounded overflow-hidden border border-border">
                         {cert.imageUrl ? (
                           <Image src={cert.imageUrl} alt={cert.title} fill className="object-cover" />
                         ) : (
@@ -52,24 +53,22 @@ export default async function AdminCertificatesPage() {
                         )}
                       </div>
                     </td>
-                    <td className="p-4 font-medium align-middle">
-                      <div className="line-clamp-2" title={cert.title}>
-                        {cert.title}
-                        {cert.credentialUrl && (
-                          <a href={cert.credentialUrl} target="_blank" className="ml-2 inline-flex items-center text-primary hover:underline" title="Lihat Kredensial">
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        )}
-                      </div>
+                    <td className="p-4 font-medium">
+                      {cert.title}
+                      {cert.credentialUrl && (
+                        <a href={cert.credentialUrl} target="_blank" className="ml-2 inline-block text-primary hover:underline">
+                          <ExternalLink className="w-3 h-3 inline" />
+                        </a>
+                      )}
                     </td>
-                    <td className="p-4 align-middle">{cert.issuer}</td>
-                    <td className="p-4 text-muted-foreground align-middle whitespace-nowrap">
+                    <td className="p-4">{cert.issuer}</td>
+                    <td className="p-4 text-muted-foreground whitespace-nowrap">
                       {new Date(cert.issuedAt).toLocaleDateString("id-ID", { year: 'numeric', month: 'long' })}
                     </td>
-                    <td className="p-4 text-right align-middle">
+                    <td className="p-4 text-right">
                       <div className="flex justify-end gap-2 items-center">
                          <Link href={`/admin/certificates/${cert.id}/edit`}>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-blue-500 hover:bg-blue-500/10">
+                            <Button variant="ghost" size="sm" className="p-2 text-blue-500 hover:bg-blue-500/10">
                                <Pencil className="w-4 h-4" />
                             </Button>
                          </Link>
@@ -78,7 +77,7 @@ export default async function AdminCertificatesPage() {
                             id={cert.id} 
                             action={deleteCertificate} 
                             variant="ghost"
-                            className="h-8 w-8 p-0 text-red-500 hover:bg-red-500/10"
+                            className="p-2 text-red-500 hover:bg-red-500/10 hover:text-red-600"
                          />
                       </div>
                     </td>
